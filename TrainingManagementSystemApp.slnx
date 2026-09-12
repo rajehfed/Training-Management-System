@@ -1,1 +1,6 @@
-<Solution />
+<Solution>
+  <Project Path="TMS.API/TMS.API.csproj" Id="54e72dde-63b8-480f-a371-38f7c4fd729a" />
+  <Project Path="TMS.Application/TMS.Application.csproj" Id="f5cf23f4-48b7-4689-aa9b-988792c2c352" />
+  <Project Path="TMS.Domain/TMS.Domain.csproj" Id="81511433-5455-409d-be90-65b4a26e228d" />
+  <Project Path="TMS.Infrastructure/TMS.Infrastructure.csproj" Id="63164e8d-5749-4797-88d7-01f4b834bc21" />
+</Solution>
