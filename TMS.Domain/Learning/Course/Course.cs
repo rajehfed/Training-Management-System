@@ -14,7 +14,7 @@ public class Course : Entity<int>
     public CourseDuration Duration { get; private set; }
     public CourseStatus Status { get; private set; } = CourseStatus.Draft;
 
-    public Course() : base(default) { }
+    private Course() : base(default) { }
     public Course(
         int id,
         int sellableItemId,
@@ -29,5 +29,39 @@ public class Course : Entity<int>
         CourseName = courseName;
         Description = description;
         Duration = duration;
+        Status = CourseStatus.Draft;
+    }
+
+    public bool MarkAsPublished(out string message)
+    {
+        if (Status == CourseStatus.Published)
+        {
+            message = "The course is already published.";
+            return false;
+        }
+
+        // I change my dessesion here, I want to allow publishing a course even if it is archived,
+        // so I will remove the check for archived status.
+        message = "The course has been marked as published.";
+        this.Status = CourseStatus.Published;
+        return true;
+    }
+    public bool MarkAsArchived(out string message)
+    {
+        if (Status == CourseStatus.Archived)
+        {
+            message = "The course is already archived.";
+            return false;
+        }
+
+        if(Status == CourseStatus.Draft)
+        {
+            message = "The course cannot be archived while in draft status.";
+            return false;
+        }
+        
+        message = "The course has been marked as archived.";
+        this.Status = CourseStatus.Archived;
+        return true;
     }
 }
