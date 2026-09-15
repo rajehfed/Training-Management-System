@@ -9,9 +9,12 @@
   <ItemGroup>
     <Folder Include="Certification\" />
     <Folder Include="Commercial\" />
-    <Folder Include="Learning\Course\Events\" />
     <Folder Include="Learning\Course\Rules\" />
     <Folder Include="Training\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="14.2.0" />
   </ItemGroup>
 
 </Project>

@@ -3,16 +3,16 @@
 public record ResultBase
 {
     public bool IsSuccess { get; }
-    public Error? ErrorMessage { get; }
+    public ErrorBase? Error { get; }
 
-    protected ResultBase(bool isSuccess, string? errorMessage)
+    protected ResultBase(bool isSuccess, ErrorBase? error)
     {
         IsSuccess = isSuccess;
-        ErrorMessage = errorMessage;
+        Error = error;
     }
 
     public static ResultBase Success() => new(true, null);
-    public static ResultBase Failure(string errorMessage) => new(false, errorMessage);
+    public static ResultBase Failure(ErrorBase error) => new(false, error);
 
-    public static implicit operator ResultBase(string errorMessage) => Failure(errorMessage);
+    public static implicit operator ResultBase(ErrorBase error) => Failure(error);
 }

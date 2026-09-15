@@ -2,8 +2,8 @@
 public record Result<T> : ResultBase
 {
     public T? Value { get; }
-    private Result(T value) : base(true, null) => this.Value = value;
-    private Result(string errorMessage) : base(false, errorMessage) { }
+    private Result(T value) : base(true, ErrorBase.None) => this.Value = value;
+    private Result(ErrorBase error) : base(false, error) { }
     public static implicit operator Result<T>(T value) => new(value);
-    public static implicit operator Result<T>(string errorMessage) => new(errorMessage);
+    public static implicit operator Result<T>(ErrorBase error) => new(error);
 }

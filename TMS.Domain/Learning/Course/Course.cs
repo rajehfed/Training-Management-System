@@ -1,18 +1,22 @@
 ﻿using System.Text;
+using TMS.Domain.Learning.Course.Events;
 using TMS.Domain.Shared;
+using TMS.Domain.Shared.Results;
 
 namespace TMS.Domain.Learning.Course;
 
 /// <summary>
 /// The Course is the basic independant unit and is the simplest thing that can be taught in the system.
 /// </summary>
-public class Course : Entity<int>
+public class Course : AggregateRoot<int>
 {
     public int SellableItemId { get; private set; }
     public string CourseName { get; private set; } = null!;
     public string? Description { get; private set; }
     public CourseDuration Duration { get; private set; }
     public CourseStatus Status { get; private set; } = CourseStatus.Draft;
+    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+    public DateTime? UpdatedAt { get; private set; } = DateTime.UtcNow;
 
     private Course() : base(default) { }
     public Course(
@@ -30,38 +34,80 @@ public class Course : Entity<int>
         Description = description;
         Duration = duration;
         Status = CourseStatus.Draft;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = null;
     }
 
-    public bool MarkAsPublished(out string message)
+    public ResultBase MarkAsPublished()
     {
         if (Status == CourseStatus.Published)
         {
-            message = "The course is already published.";
-            return false;
+            return CourseError.AlreadyPublished;
         }
 
         // I change my dessesion here, I want to allow publishing a course even if it is archived,
         // so I will remove the check for archived status.
-        message = "The course has been marked as published.";
         this.Status = CourseStatus.Published;
-        return true;
+        this.UpdatedAt = DateTime.UtcNow;
+        CoursePublishedDomainEvent coursePublishedDomainEvent = new(this.Id);
+        AddDomainEvent(coursePublishedDomainEvent);
+        return ResultBase.Success();
     }
-    public bool MarkAsArchived(out string message)
+    public ResultBase MarkAsArchived()
     {
         if (Status == CourseStatus.Archived)
         {
-            message = "The course is already archived.";
-            return false;
+            return CourseError.AlreadyArchived;
         }
 
         if(Status == CourseStatus.Draft)
         {
-            message = "The course cannot be archived while in draft status.";
-            return false;
+            return CourseError.CannotArchiveDraft;
         }
         
-        message = "The course has been marked as archived.";
         this.Status = CourseStatus.Archived;
-        return true;
+        this.UpdatedAt = DateTime.UtcNow;
+        CourseArchivedDomainEvent courseArchivedDomainEvent = new(this.Id);
+        AddDomainEvent(courseArchivedDomainEvent);
+        return ResultBase.Success();
+    }
+    public ResultBase ChangeName(string courseName)
+    {
+        if (Status == CourseStatus.Archived)
+            return CourseError.InvalidStatus;
+
+        if(string.IsNullOrWhiteSpace(courseName))
+            return CourseError.InvalidTitle;
+
+        this.CourseName = courseName;
+        this.UpdatedAt = DateTime.UtcNow;
+        CourseUpdatedDomainEvent courseUpdatedDomainEvent = new(this.Id);
+        AddDomainEvent(courseUpdatedDomainEvent);
+        return ResultBase.Success();
+    }
+    public ResultBase ChangeDescription(string? description)
+    {
+        if (Status == CourseStatus.Archived)
+            return CourseError.InvalidStatus;
+
+        this.Description = description;
+        this.UpdatedAt = DateTime.UtcNow;
+        CourseUpdatedDomainEvent courseUpdatedDomainEvent = new(this.Id);
+        AddDomainEvent(courseUpdatedDomainEvent);
+        return ResultBase.Success();
+    }
+    public ResultBase ChangeDuration(CourseDuration duration)
+    {
+        if (Status == CourseStatus.Archived)
+            return CourseError.InvalidStatus;
+
+        if (duration.Minutes <= 0 || duration.TotalHours < 0)
+            return CourseError.InvalidDuration;
+
+        this.Duration = duration;
+        this.UpdatedAt = DateTime.UtcNow;
+        CourseUpdatedDomainEvent courseUpdatedDomainEvent = new(this.Id);
+        AddDomainEvent(courseUpdatedDomainEvent);
+        return ResultBase.Success();
     }
 }
