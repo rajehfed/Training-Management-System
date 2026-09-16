@@ -5,14 +5,14 @@ namespace TMS.Domain.Learning.Course;
 public class CourseDuration : ValueObject
 {
     public int Minutes { get; }
-    public CourseDuration(int minutes)
+    protected CourseDuration(int minutes)
     {
         Minutes = minutes;
     }
     public static CourseDuration FromMinutes(int minutes)
     {
-        if(minutes < 0)
-            throw new ArgumentException("Course duration cannot be negative.", nameof(minutes));
+        if(minutes <= 0)
+            throw new ArgumentException("Course duration cannot be negative or zero.", nameof(minutes));
         
         return new CourseDuration(minutes);
     }

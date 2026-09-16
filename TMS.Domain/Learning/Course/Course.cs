@@ -101,9 +101,6 @@ public class Course : AggregateRoot<int>
         if (Status == CourseStatus.Archived)
             return CourseError.InvalidStatus;
 
-        if (duration.Minutes <= 0 || duration.TotalHours < 0)
-            return CourseError.InvalidDuration;
-
         this.Duration = duration;
         this.UpdatedAt = DateTime.UtcNow;
         CourseUpdatedDomainEvent courseUpdatedDomainEvent = new(this.Id);

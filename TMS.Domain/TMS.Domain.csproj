@@ -9,7 +9,6 @@
   <ItemGroup>
     <Folder Include="Certification\" />
     <Folder Include="Commercial\" />
-    <Folder Include="Learning\Course\Rules\" />
     <Folder Include="Training\" />
   </ItemGroup>
 
