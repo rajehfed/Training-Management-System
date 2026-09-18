@@ -34,4 +34,20 @@ public static class LearningPathError
     public static readonly ErrorBase CannotArchiveDraft = ErrorBase.Validation(
         "LearningPath.CannotArchiveDraft",
         "The learning path is in the draft status we cannot Archive it.");
+
+    public static readonly ErrorBase InvalidCourseId = ErrorBase.Validation(
+        "LearningPath.InvalidCourseId",
+        "The course id is invalid.");
+
+    public static readonly ErrorBase CourseAlreadyInPath = ErrorBase.Conflict(
+        "LearningPath.CourseAlreadyInPath",
+        "The course is already in the learning path.");
+
+    public static readonly ErrorBase CourseNotFoundInThePath = ErrorBase.NotFound(
+        "LearningPath.CourseNotFoundInThePath",
+        "The course is not found in the learning path.");
+
+    public static readonly ErrorBase InvalidOrderInPath = ErrorBase.Validation(
+        "LearningPath.InvalidOrderInPath",
+        "The order in path is invalid.");
 }

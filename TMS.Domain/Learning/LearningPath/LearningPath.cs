@@ -15,6 +15,8 @@ public class LearningPath : AggregateRoot<int>
     public PathStatus Status { get; private set; } = PathStatus.Draft;
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
+    private List<CourseInPath.CourseInPath> _courses = new();
+    public IReadOnlyCollection<CourseInPath.CourseInPath> Courses => _courses.AsReadOnly();
     protected LearningPath() : base(default) { }
     public LearningPath(
         int id,
@@ -38,9 +40,8 @@ public class LearningPath : AggregateRoot<int>
     public ResultBase MarkAsPublished()
     {
         if (Status == PathStatus.Published)
-        {
             return LearningPathError.AlreadyPublished;
-        }
+
         this.Status = PathStatus.Published;
         this.UpdatedAt = DateTime.UtcNow;
         LearningPathPublishedDomainEvent learningPathPublishedDomainEvent = new(this.Id);
@@ -70,7 +71,7 @@ public class LearningPath : AggregateRoot<int>
 
         this.PathName = pathName;
         this.UpdatedAt = DateTime.UtcNow;
-        LearningPathArchivedDomainEvent LearningPathUpdatedDomainEvent = new(this.Id);
+        LearningPathUpdatedDomainEvent LearningPathUpdatedDomainEvent = new(this.Id);
         AddDomainEvent(LearningPathUpdatedDomainEvent);
         return ResultBase.Success();
     }
@@ -81,7 +82,7 @@ public class LearningPath : AggregateRoot<int>
 
         this.Outcomes = outcomes;
         this.UpdatedAt = DateTime.UtcNow;
-        LearningPathArchivedDomainEvent LearningPathUpdatedDomainEvent = new(this.Id);
+        LearningPathUpdatedDomainEvent LearningPathUpdatedDomainEvent = new(this.Id);
         AddDomainEvent(LearningPathUpdatedDomainEvent);
         return ResultBase.Success();
     }
@@ -92,8 +93,58 @@ public class LearningPath : AggregateRoot<int>
 
         this.Audience = audience;
         this.UpdatedAt = DateTime.UtcNow;
-        LearningPathArchivedDomainEvent LearningPathUpdatedDomainEvent = new(this.Id);
+        LearningPathUpdatedDomainEvent LearningPathUpdatedDomainEvent = new(this.Id);
         AddDomainEvent(LearningPathUpdatedDomainEvent);
+        return ResultBase.Success();
+    }
+
+    public ResultBase AddCourseToPath(int courseId, int orderInThePath)
+    {
+        if (Status == PathStatus.Archived)
+            return LearningPathError.InvalidStatus;
+
+        if (courseId < 0)
+            return LearningPathError.InvalidCourseId;
+
+        if (_courses.Any(c => c.CourseId == courseId))
+            return LearningPathError.CourseAlreadyInPath;
+
+        if (orderInThePath <= 0)
+            return LearningPathError.InvalidOrderInPath;
+
+        _courses.Add(new CourseInPath.CourseInPath(courseId, this.Id, orderInThePath));
+        this.UpdatedAt = DateTime.UtcNow;
+
+        AddDomainEvent(new AddingCourseToPathDomainEvent(this.Id));
+
+        return ResultBase.Success();
+    }
+    public ResultBase ChangeCourseOrderInPath(int courseId, int orderInThePath)
+    {
+        if (courseId < 0)
+            return LearningPathError.InvalidCourseId;
+
+        if (orderInThePath <= 0 || orderInThePath > _courses.Count + 1)
+            return LearningPathError.InvalidOrderInPath;
+
+        if (Status == PathStatus.Archived)
+            return LearningPathError.InvalidStatus;
+
+        if (!_courses.Any(c => c.CourseId == courseId))
+            return LearningPathError.CourseNotFoundInThePath;
+
+        var courseInPath = _courses.First(c => c.CourseId == courseId);
+
+        foreach (var course in _courses)
+        {
+            if (course.OrderInPath >= orderInThePath && course.CourseId != courseId)
+            {
+                course.UpdateOrderInPath(course.OrderInPath + 1);
+            }
+        }
+
+        courseInPath.UpdateOrderInPath(orderInThePath);
+        AddDomainEvent(new ChangingCourseOrderInPathChangedDomainEvent(this.Id));
         return ResultBase.Success();
     }
 }
