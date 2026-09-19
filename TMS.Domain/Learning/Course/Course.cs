@@ -1,5 +1,4 @@
-﻿using System.Text;
-using TMS.Domain.Learning.Course.Events;
+﻿using TMS.Domain.Learning.Course.Events;
 using TMS.Domain.Shared;
 using TMS.Domain.Shared.Results;
 
@@ -13,8 +12,8 @@ public class Course : AggregateRoot<int>
     public int SellableItemId { get; private set; }
     public string CourseName { get; private set; } = null!;
     public string? Description { get; private set; }
-    public CourseDuration Duration { get; private set; }
-    public CourseStatus Status { get; private set; } = CourseStatus.Draft;
+    public CourseDuration? Duration { get; private set; }
+    public CourseStatus Status { get; private set; } = null!;
     public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; private set; } = DateTime.UtcNow;
 
