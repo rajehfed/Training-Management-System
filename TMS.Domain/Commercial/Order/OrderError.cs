@@ -7,6 +7,12 @@ public static class OrderError
     public static readonly ErrorBase InvalidStatus = ErrorBase.Validation(
         "Order.InvalidStatus",
         "The order status is not valid");
+    public static readonly ErrorBase InvalidOfferId = ErrorBase.Validation(
+        "Order.InvalidOfferId",
+        "The order id is not valid");
+    public static readonly ErrorBase InvalidPrice = ErrorBase.Validation(
+        "Order.InvalidPrice",
+        "The order price is not valid");
     public static readonly ErrorBase AlreadyCancelled = ErrorBase.Conflict(
         "Order.AlreadyCancelled",
         "The Order is already Cancelled");
@@ -22,4 +28,10 @@ public static class OrderError
     public static readonly ErrorBase AlreadyComplleted = ErrorBase.Validation(
         "Order.AlreadyComplleted",
         "The Order is already complleted");
+    public static readonly ErrorBase OfferAlreadyInOrder = ErrorBase.Conflict(
+        "Order.OfferAlreadyInOrder",
+        "The offer is already is in the order");
+    public static readonly ErrorBase ItemNotFoundInOrder = ErrorBase.NotFound(
+        "Order.ItemNotFoundInOrder",
+        "The item is not found in the orders list");
 }
