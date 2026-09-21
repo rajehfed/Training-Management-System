@@ -10,7 +10,6 @@
     <Folder Include="Certification\" />
     <Folder Include="Commercial\Payment\" />
     <Folder Include="Commercial\OrderItem\" />
-    <Folder Include="Commercial\Order\" />
   </ItemGroup>
 
   <ItemGroup>
