@@ -1,5 +1,6 @@
 ﻿using TMS.Domain.Commercial.Offer;
 using TMS.Domain.Commercial.Order.Events;
+using TMS.Domain.Commercial.Payment;
 using TMS.Domain.Shared;
 using TMS.Domain.Shared.Results;
 
@@ -107,6 +108,20 @@ public class Order : AggregateRoot<int>
         UpdatedAt = DateTime.UtcNow;
         AddDomainEvent(new OrderItemRemovedDomainEvent(Id, offerId));
 
+        return ResultBase.Success();
+    }
+    public ResultBase MarkAsPaid()
+    {
+        if (Status.Equals(OrderStatus.Completed))
+            return OrderError.AlreadyComplleted;
+
+        if (Status.Equals(OrderStatus.Cancelled))
+            return OrderError.InvalidStatus;
+
+        Status = OrderStatus.Completed;
+        UpdatedAt = DateTime.UtcNow;
+
+        AddDomainEvent(new OrderPaidDomainEvent(Id));
         return ResultBase.Success();
     }
 }
