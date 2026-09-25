@@ -11,9 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Learning\" />
     <Folder Include="Commercial\" />
     <Folder Include="Certification\" />
+    <Folder Include="Learning\CourseApp\Queries\" />
+    <Folder Include="Shared\Behaviors\" />
     <Folder Include="Training\" />
   </ItemGroup>
 
