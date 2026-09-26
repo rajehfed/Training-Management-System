@@ -2,7 +2,7 @@
 using TMS.Application.Shared.Interfaces;
 using TMS.Application.Shared.Models.DTOs;
 
-namespace TMS.Application.Learning.CourseApp.EventHandlers.GetCourseById;
+namespace TMS.Application.Learning.CourseApp.Queries.GetCourseById;
 
 public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, CourseDto?>
 {

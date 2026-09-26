@@ -13,9 +13,13 @@
   <ItemGroup>
     <Folder Include="Commercial\" />
     <Folder Include="Certification\" />
-    <Folder Include="Learning\CourseApp\Queries\" />
+    <Folder Include="Learning\CourseApp\EventHandlers\" />
     <Folder Include="Shared\Behaviors\" />
     <Folder Include="Training\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
   </ItemGroup>
 
 </Project>
