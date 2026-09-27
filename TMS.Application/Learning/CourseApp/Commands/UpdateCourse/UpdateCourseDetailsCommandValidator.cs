@@ -17,7 +17,7 @@ public class UpdateCourseDetailsCommandValidator : AbstractValidator<UpdateCours
             .NotEmpty().WithMessage("The description is mandatory.")
             .MaximumLength(1000).WithMessage("The description must be no more than 1000 digits");
 
-        RuleFor(x => x.Duration)
+        RuleFor(x => x.DurationInMinutes)
             .GreaterThan(0).WithMessage("The duration must be greater than zero");
     }
 }

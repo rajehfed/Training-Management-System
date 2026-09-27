@@ -95,15 +95,29 @@ public class Course : AggregateRoot<int>
         AddDomainEvent(courseUpdatedDomainEvent);
         return ResultBase.Success();
     }
-    public ResultBase ChangeDuration(CourseDuration duration)
+    public ResultBase ChangeDuration(int durationInMinutes)
     {
         if (Status == CourseStatus.Archived)
             return CourseError.InvalidStatus;
 
-        this.Duration = duration;
+        this.Duration = CourseDuration.FromMinutes(durationInMinutes);
         this.UpdatedAt = DateTime.UtcNow;
         CourseUpdatedDomainEvent courseUpdatedDomainEvent = new(this.Id);
         AddDomainEvent(courseUpdatedDomainEvent);
+        return ResultBase.Success();
+    }
+
+    public ResultBase UpdateDetails(string title, string description, int durationInMinutes)
+    {
+        if (Status == CourseStatus.Archived)
+            return CourseError.InvalidStatus;
+
+        this.CourseName = title;
+        this.Description = description;
+        this.Duration = CourseDuration.FromMinutes(durationInMinutes);
+        this.UpdatedAt = DateTime.UtcNow;
+
+        this.AddDomainEvent(new CourseUpdatedDomainEvent(this.Id));
         return ResultBase.Success();
     }
 }

@@ -7,4 +7,4 @@ public record UpdateCourseCommand(
     int CourseId,
     string CourseTitle,
     string Description,
-    int Duration) : IRequest<ResultBase>;
+    int DurationInMinutes) : IRequest<ResultBase>;

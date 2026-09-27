@@ -22,7 +22,9 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
         if (course is null)
             return CourseError.CourseNotFound;
 
-        //course
+        course.UpdateDetails(request.CourseTitle, request.Description, request.DurationInMinutes);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return ResultBase.Success();
     }
