@@ -5,6 +5,7 @@ public record CourseDto(
     int SellableItemId,
     string CourseName,
     string? Description,
+    int? Duration,
     string Status,
     DateTime CreatedAt,
     DateTime? UpdatedAt);

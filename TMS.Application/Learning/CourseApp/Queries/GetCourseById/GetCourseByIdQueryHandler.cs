@@ -25,6 +25,7 @@ public class GetCourseByIdQueryHandler : IRequestHandler<GetCourseByIdQuery, Cou
             course.SellableItemId,
             course.CourseName,
             course.Description,
+            course.Duration.Minutes,
             course.Status.ToString(),
             course.CreatedAt,
             course.UpdatedAt);
