@@ -1,4 +1,5 @@
-﻿using TMS.Domain.LearningDomain.Course;
+﻿using TMS.Application.Shared.Models.DTOs;
+using TMS.Domain.LearningDomain.Course;
 
 namespace TMS.Application.Shared.Interfaces;
 
@@ -6,6 +7,9 @@ public interface ICourseRepository
 {
     Task<Course?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<Course?> GetByTitleAsync(string title, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<CourseDto?>> GetByIdsAsync(
+        List<int> Ids,
+        CancellationToken cancellationToken = default);
     Task AddAsync(Course course, CancellationToken cancellationToken = default);
     void Update(Course course);
 }

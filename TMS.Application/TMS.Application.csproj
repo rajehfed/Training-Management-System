@@ -14,6 +14,7 @@
     <Folder Include="Commercial\" />
     <Folder Include="Certification\" />
     <Folder Include="Learning\CourseApp\EventHandlers\" />
+    <Folder Include="Learning\LearningPathApp\Commands\" />
     <Folder Include="Shared\Behaviors\" />
     <Folder Include="Training\" />
   </ItemGroup>

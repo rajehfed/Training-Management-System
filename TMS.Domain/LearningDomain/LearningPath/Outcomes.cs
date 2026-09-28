@@ -53,4 +53,8 @@ public class Outcomes : ValueObject
             yield return outcome;
         }
     }
+    public override string ToString()
+    {
+        return string.Join(',', Items.Select(i => i.Name));
+    }
 }
