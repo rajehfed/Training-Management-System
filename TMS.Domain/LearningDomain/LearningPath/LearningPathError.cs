@@ -47,6 +47,10 @@ public static class LearningPathError
         "LearningPath.CourseNotFoundInThePath",
         "The course is not found in the learning path.");
 
+    public static readonly ErrorBase LearningPathNotFound = ErrorBase.NotFound(
+        "LearningPath.LearningPathNotFound",
+        "The learning path does not exsits.");
+
     public static readonly ErrorBase InvalidOrderInPath = ErrorBase.Validation(
         "LearningPath.InvalidOrderInPath",
         "The order in path is invalid.");

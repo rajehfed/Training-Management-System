@@ -12,4 +12,5 @@ public interface ICourseRepository
         CancellationToken cancellationToken = default);
     Task AddAsync(Course course, CancellationToken cancellationToken = default);
     void Update(Course course);
+    Task<bool> ExistsAsync(int courseId, CancellationToken cancellationToken);
 }
