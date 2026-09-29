@@ -54,4 +54,8 @@ public static class LearningPathError
     public static readonly ErrorBase InvalidOrderInPath = ErrorBase.Validation(
         "LearningPath.InvalidOrderInPath",
         "The order in path is invalid.");
+
+    public static readonly ErrorBase InvalidInputs = ErrorBase.Validation(
+        "LearningPath.InvalidInputs",
+        "The invalid inputs");
 }

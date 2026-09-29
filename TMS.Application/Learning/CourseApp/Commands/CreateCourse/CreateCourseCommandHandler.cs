@@ -27,7 +27,6 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
             request.Duration);
 
         await _courseRepository.AddAsync(course, cancellationToken);
-
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return ResultBase.Success();

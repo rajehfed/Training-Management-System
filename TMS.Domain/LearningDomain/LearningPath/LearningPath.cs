@@ -148,4 +148,22 @@ public class LearningPath : AggregateRoot<int>
         AddDomainEvent(new ChangingCourseOrderInPathChangedDomainEvent(this.Id));
         return ResultBase.Success();
     }
+
+    public ResultBase UpdateDetails(string pathName, string outcomes, string audience)
+    {
+        if (Status == PathStatus.Archived)
+            return LearningPathError.InvalidStatus;
+
+        if (string.IsNullOrWhiteSpace(pathName) || 
+            string.IsNullOrWhiteSpace(outcomes) || 
+            string.IsNullOrWhiteSpace(audience))
+            return LearningPathError.InvalidInputs;
+
+        this.PathName = pathName;
+        this.Outcomes = new Outcomes(outcomes.Split([',']));
+        this.Audience = audience;
+
+        this.AddDomainEvent(new LearningPathUpdatedDomainEvent(this.Id));
+        return ResultBase.Success();
+    }
 }

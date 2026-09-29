@@ -24,6 +24,7 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, R
 
         course.UpdateDetails(request.CourseTitle, request.Description, request.DurationInMinutes);
 
+        _courseRepository.Update(course);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return ResultBase.Success();
