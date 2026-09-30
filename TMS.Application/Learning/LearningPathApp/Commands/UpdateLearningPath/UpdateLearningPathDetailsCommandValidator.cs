@@ -16,7 +16,7 @@ public class UpdateLearningPathDetailsCommandValidator : AbstractValidator<Updat
 
         RuleFor(x => x.PathName)
             .NotEmpty()
-            .WithMessage("The Name")
+            .WithMessage("The Name of the path is mandatory.")
             .MaximumLength(200)
             .WithMessage("The name of the path must be less than 200 digits");
 
