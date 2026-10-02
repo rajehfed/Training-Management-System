@@ -16,4 +16,21 @@ public static class RuleBuilderExtensions
         return ruleBuilder
             .GreaterThan(0).WithMessage("The duration of the Course must be greater than zero.");
     }
+    public static IRuleBuilderOptions<T, string> ValidLearningPathName<T>(this IRuleBuilder<T, string> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty().MaximumLength(150)
+            .WithMessage("The Learning Path Name is required and must be less than 150 characters.");
+    }
+    public static IRuleBuilderOptions<T, string> ValidLearningPathAudience<T>(this IRuleBuilder<T, string> ruleBuilder)
+    {
+        return ruleBuilder
+            .NotEmpty().MaximumLength(350)
+            .WithMessage("The Learning Path Audience is required and must be less than 350 characters.");
+    }
+    public static IRuleBuilderOptions<T, int> ValidLearningPathCourseOrder<T>(this IRuleBuilder<T, int> ruleBuilder)
+    {
+        return ruleBuilder
+            .GreaterThan(0).WithMessage("The course order must be a positive integer.");
+    }
 }
