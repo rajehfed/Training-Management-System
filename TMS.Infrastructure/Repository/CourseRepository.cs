@@ -18,32 +18,68 @@ public class CourseRepository : ICourseRepository
     {
         using var connection = _connectionFactory.CreateConnection();
 
-        const string sqlCourseQuery = @"
-            INSERT INTO Course (
-                SellableItemId, 
-                CourseName, 
-                Description, 
-                Duration,
-                CreatedAt,
-                UpdatedAt)
-            VALUES (
-                @SellableItemId, 
-                @CourseName, 
-                @Description, 
-                @Duration,
-                @CreatedAt,
-                @UpdatedAt)
-        ";
+        connection.Open();
+        using var transaction = connection.BeginTransaction();
 
-        await connection.ExecuteAsync(sqlCourseQuery, new
+        try
         {
-            course.SellableItemId,
-            course.CourseName,
-            course.Description,
-            course.Duration,
-            course.CreatedAt,
-            course.UpdatedAt
-        });
+            const string sqlSellableItem = @"
+                INSERT INTO SellableItem
+                    (ItemType, CreatedAt)
+                VALUES
+                    (@ItemType, @CreatedAt)
+                RETURNING SellableItemId; ";
+
+            var sellableItemId = await connection.ExecuteScalarAsync<int>(
+                new CommandDefinition(
+                    sqlSellableItem,
+                    new { ItemType = "Course", course.CreatedAt },
+                    transaction: transaction,
+                    cancellationToken: cancellationToken)
+                );
+
+            const string sqlCourseQuery = @"
+                INSERT INTO Course (
+                    SellableItemId, 
+                    CourseName, 
+                    Description, 
+                    Duration,
+                    Status
+                    CreatedAt,
+                    UpdatedAt)
+                VALUES (
+                    @SellableItemId, 
+                    @CourseName, 
+                    @Description, 
+                    @Status
+                    @Duration,
+                    @CreatedAt,
+                    @UpdatedAt)
+            ";
+
+            var courseCommand = new CommandDefinition(
+                sqlCourseQuery,
+                new
+                {
+                    SellableItemId = sellableItemId,
+                    course.CourseName,
+                    course.Description,
+                    course.Duration,
+                    Status = course.Status.ToString(),
+                    course.CreatedAt,
+                    course.UpdatedAt
+                },
+                transaction: transaction,
+                cancellationToken: cancellationToken);
+
+            await connection.ExecuteAsync(courseCommand);
+            transaction.Commit();
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 
     public async Task<bool> ExistsAsync(int courseId, CancellationToken cancellationToken)

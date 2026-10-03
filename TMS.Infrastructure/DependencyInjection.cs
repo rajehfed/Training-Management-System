@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Dapper;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TMS.Application.Shared.Interfaces;
 using TMS.Infrastructure.Dapper;
+using TMS.Infrastructure.Dapper.Handlers;
 using TMS.Infrastructure.Repository;
 
 namespace TMS.Infrastructure;
@@ -13,6 +15,8 @@ public static class DependencyInjection
         services.AddSingleton<IDbConnectionFactory, DbConnectionFactory>();
         services.AddScoped<ILearningPathRepository, LearningPathRepository>();
         services.AddScoped<ICourseRepository, CourseRepository>();
+
+        SqlMapper.AddTypeHandler(new PathStatusTypeHandler());
 
         return services;
     }
