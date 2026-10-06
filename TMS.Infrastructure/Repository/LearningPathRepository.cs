@@ -3,6 +3,7 @@ using TMS.Application.Shared.Interfaces;
 using TMS.Application.Shared.Models.DTOs;
 using TMS.Domain.LearningDomain.LearningPath;
 using TMS.Infrastructure.Dapper;
+using TMS.Infrastructure.Mappers;
 
 namespace TMS.Infrastructure.Repository;
 
@@ -128,18 +129,7 @@ public class LearningPathRepository : ILearningPathRepository
         var dto = await connection.QueryFirstOrDefaultAsync<LearningPathDto?>(command);
         if (dto is null) return null;
 
-        var status = PathStatus.FromName(dto.Status);
-
-        return new LearningPath(
-            dto.PathId,
-            dto.SellableItemId,
-            dto.PathName,
-            new Outcomes(dto.Outcomes.Split(',')),
-            dto.Audience,
-            status,
-            dto.CreatedAt,
-            dto.UpdatedAt
-        );
+        return LearningPathMapper.ToDomain(dto);
     }
 
     public async Task<LearningPath?> GetByNameAsync(string pathName, CancellationToken cancellationToken = default)
@@ -164,18 +154,7 @@ public class LearningPathRepository : ILearningPathRepository
         var dto = await connection.QueryFirstOrDefaultAsync<LearningPathDto?>(command);
         if (dto is null) return null;
 
-        var status = PathStatus.FromName(dto.Status);
-
-        return new LearningPath(
-            dto.PathId,
-            dto.SellableItemId,
-            dto.PathName,
-            new Outcomes(dto.Outcomes.Split(',')),
-            dto.Audience,
-            status,
-            dto.CreatedAt,
-            dto.UpdatedAt
-        );
+        return LearningPathMapper.ToDomain(dto);
     }
 
     public void Update(LearningPath learningPath)

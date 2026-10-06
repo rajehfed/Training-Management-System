@@ -1,21 +1,22 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using System.Data;
 using Microsoft.Extensions.Configuration;
-using System.Data;
+using Npgsql;
+using TMS.Infrastructure.Dapper;
 
-namespace TMS.Infrastructure.Dapper;
+namespace TMS.Infrastructure.Persistence.Dapper;
 
 public class DbConnectionFactory : IDbConnectionFactory
 {
-    private readonly IConfiguration _configuration;
+    private readonly string _connectionString;
 
     public DbConnectionFactory(IConfiguration configuration)
     {
-        _configuration = configuration;
+        _connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
     }
 
     public IDbConnection CreateConnection()
     {
-        var connectionString = _configuration.GetConnectionString("DefaultConnection");
-        return new SqlConnection(connectionString);
+        return new NpgsqlConnection(_connectionString);
     }
 }

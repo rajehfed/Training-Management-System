@@ -1,7 +1,9 @@
 ﻿using Dapper;
 using TMS.Application.Shared.Interfaces;
+using TMS.Application.Shared.Models.DTOs;
 using TMS.Domain.LearningDomain.Course;
 using TMS.Infrastructure.Dapper;
+using TMS.Infrastructure.Mappers;
 
 namespace TMS.Infrastructure.Repository;
 
@@ -44,15 +46,15 @@ public class CourseRepository : ICourseRepository
                     CourseName, 
                     Description, 
                     Duration,
-                    Status
+                    Status,
                     CreatedAt,
                     UpdatedAt)
                 VALUES (
                     @SellableItemId, 
                     @CourseName, 
                     @Description, 
-                    @Status
                     @Duration,
+                    @Status,
                     @CreatedAt,
                     @UpdatedAt)
             ";
@@ -118,12 +120,15 @@ public class CourseRepository : ICourseRepository
             WHERE CourseId = @CourseId;
         ";
 
-        return await connection.QueryFirstOrDefaultAsync<Course>(
-            new CommandDefinition(
+        var command = new CommandDefinition(
                 sql,
                 new { CourseId = id },
-                cancellationToken: cancellationToken)
-            );
+                cancellationToken: cancellationToken);
+
+        var dto = await connection.QueryFirstOrDefaultAsync<CourseDto>(command);
+        if (dto is null) return null;
+
+        return CourseMapper.ToDomain(dto);
     }
 
     public async Task<IReadOnlyCollection<Course?>> GetByIdsAsync(List<int> Ids, CancellationToken cancellationToken = default)
@@ -143,13 +148,15 @@ public class CourseRepository : ICourseRepository
             FROM Course 
             WHERE CourseId = ANY(@CourseIds);";
 
-        var courses = await connection.QueryAsync<Course>(
-            new CommandDefinition(
-                sql,
-                new { CourseIds = Ids.ToArray() },
-                cancellationToken: cancellationToken));
+        var command = new CommandDefinition(
+            sql,
+            new { CourseIds = Ids.ToArray() },
+            cancellationToken: cancellationToken);
 
-        return courses.ToList();
+        var dtos = await connection.QueryAsync<CourseDto>(command);
+        if(dtos is null) return [];
+
+        return dtos.Select(dto => CourseMapper.ToDomain(dto)).ToList();
     }
 
     public async Task<Course?> GetByTitleAsync(string title, CancellationToken cancellationToken = default)
@@ -170,12 +177,15 @@ public class CourseRepository : ICourseRepository
             WHERE CourseName = @CourseName;
         ";
 
-        return await connection.QueryFirstOrDefaultAsync<Course>(
-            new CommandDefinition(
+        var command = new CommandDefinition(
                 sql,
                 new { CourseName = title },
-                cancellationToken: cancellationToken)
-            );
+                cancellationToken: cancellationToken);
+
+        var dto = await connection.QueryFirstOrDefaultAsync<CourseDto>(command);
+        if (dto is null) return null;
+
+        return CourseMapper.ToDomain(dto);
     }
 
     public void Update(Course course)
@@ -200,7 +210,7 @@ public class CourseRepository : ICourseRepository
             course.CourseName,
             course.Description,
             course.Duration,
-            course.Status,
+            Status = course.Status.ToString(),
             course.CreatedAt,
             course.UpdatedAt,
             CourseId = course.Id

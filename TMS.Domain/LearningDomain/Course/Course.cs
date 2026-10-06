@@ -23,7 +23,10 @@ public class Course : AggregateRoot<int>
         int sellableItemId,
         string courseName,
         string? description,
-        CourseDuration duration) : base(id)
+        CourseDuration? duration,
+        CourseStatus status,
+        DateTime createdAt,
+        DateTime? updatedAt) : base(id)
     {
         if (string.IsNullOrWhiteSpace(courseName))
             throw new ArgumentException("The course name cannot be empty.", nameof(courseName));
@@ -32,9 +35,9 @@ public class Course : AggregateRoot<int>
         CourseName = courseName;
         Description = description;
         Duration = duration;
-        Status = CourseStatus.Draft;
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = null;
+        Status = status;
+        CreatedAt = createdAt;
+        UpdatedAt = updatedAt;
     }
 
     public ResultBase MarkAsPublished()

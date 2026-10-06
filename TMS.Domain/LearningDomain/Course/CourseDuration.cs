@@ -5,7 +5,7 @@ namespace TMS.Domain.LearningDomain.Course;
 public class CourseDuration : ValueObject
 {
     public int Minutes { get; }
-    protected CourseDuration(int minutes)
+    public CourseDuration(int minutes)
     {
         Minutes = minutes;
     }
