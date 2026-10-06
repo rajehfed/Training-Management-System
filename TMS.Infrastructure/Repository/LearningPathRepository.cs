@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using TMS.Application.Shared.Interfaces;
-using TMS.Domain.Commercial.SellableItem;
-using TMS.Domain.LearningDomain.Course;
+using TMS.Application.Shared.Models.DTOs;
 using TMS.Domain.LearningDomain.LearningPath;
 using TMS.Infrastructure.Dapper;
 
@@ -103,6 +102,7 @@ public class LearningPathRepository : ILearningPathRepository
 
     public void Delete(LearningPath learningPath)
     {
+        // I'll Do it letter, but for now, I will throw an exception to indicate that this method is not yet implemented.
         throw new NotImplementedException();
     }
 
@@ -121,20 +121,89 @@ public class LearningPathRepository : ILearningPathRepository
                 CreatedAt, 
                 UpdatedAt
             FROM learningpath
-            WHERE learningpath.sellableitemid = @PathId";
+            WHERE learningpath.LearningPathId = @PathId";
 
         var command = new CommandDefinition(sql, new { PathId = pathId }, cancellationToken: cancellationToken);
 
-        return await connection.QueryFirstOrDefaultAsync<LearningPath?>(command);
+        var dto = await connection.QueryFirstOrDefaultAsync<LearningPathDto?>(command);
+        if (dto is null) return null;
+
+        var status = PathStatus.FromName(dto.Status);
+
+        return new LearningPath(
+            dto.PathId,
+            dto.SellableItemId,
+            dto.PathName,
+            new Outcomes(dto.Outcomes.Split(',')),
+            dto.Audience,
+            status,
+            dto.CreatedAt,
+            dto.UpdatedAt
+        );
     }
 
-    public Task<LearningPath?> GetByNameAsync(string pathName, CancellationToken cancellationToken = default)
+    public async Task<LearningPath?> GetByNameAsync(string pathName, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        using var connection = _connectionFactory.CreateConnection();
+
+        const string sql = @"
+            SELECT 
+                LearningPathId AS Id, 
+                SellableItemId, 
+                PathName, 
+                Outcomes, 
+                Audience, 
+                Status, 
+                CreatedAt, 
+                UpdatedAt
+            FROM learningpath
+            WHERE learningpath.PathName = @PathName";
+
+        var command = new CommandDefinition(sql, new { PathName = pathName }, cancellationToken: cancellationToken);
+
+        var dto = await connection.QueryFirstOrDefaultAsync<LearningPathDto?>(command);
+        if (dto is null) return null;
+
+        var status = PathStatus.FromName(dto.Status);
+
+        return new LearningPath(
+            dto.PathId,
+            dto.SellableItemId,
+            dto.PathName,
+            new Outcomes(dto.Outcomes.Split(',')),
+            dto.Audience,
+            status,
+            dto.CreatedAt,
+            dto.UpdatedAt
+        );
     }
 
     public void Update(LearningPath learningPath)
     {
-        throw new NotImplementedException();
+        using var connection = _connectionFactory.CreateConnection();
+
+        const string sql = @"
+            UPDATE learningpath
+            SET 
+                PathName = @PathName,
+                SellableItemId = @SellableItemId,
+                Outcomes = @Outcomes,
+                Audience = @Audience,
+                Status = @Status,
+                UpdatedAt = @UpdatedAt
+            WHERE LearningPathId = @PathId";
+
+        var command = new CommandDefinition(sql, new
+        {
+            PathId = learningPath.Id,
+            learningPath.PathName,
+            learningPath.SellableItemId,
+            learningPath.Outcomes,
+            learningPath.Audience,
+            Status = learningPath.Status.Name,
+            UpdatedAt = learningPath.UpdatedAt
+        });
+
+        connection.Execute(command);
     }
 }

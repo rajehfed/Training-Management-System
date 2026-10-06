@@ -12,8 +12,8 @@ public record LearningPathDto(
     int SellableItemId,
     string PathName,
     string Outcomes,
-    string? Audience,
-    string? Status,
+    string Audience,
+    string Status,
     IReadOnlyCollection<CourseInPathDto> Courses,
     DateTime CreatedAt,
     DateTime? UpdatedAt);

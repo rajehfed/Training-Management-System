@@ -24,7 +24,10 @@ public class LearningPath : AggregateRoot<int>
         int sellableItemId,
         string pathName,
         Outcomes? outcomes,
-        string? audience) : base(id)
+        string? audience,
+        PathStatus status,
+        DateTime createdAt,
+        DateTime? updatedAt) : base(id)
     {
         if (string.IsNullOrWhiteSpace(pathName))
             throw new ArgumentException("The path name cannot be empty.", nameof(pathName));
@@ -33,9 +36,9 @@ public class LearningPath : AggregateRoot<int>
         PathName = pathName;
         Outcomes = outcomes;
         Audience = audience;
-        Status = PathStatus.Draft;
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = null;
+        CreatedAt = createdAt;
+        Status = status;
+        UpdatedAt = updatedAt;
     }
 
     public ResultBase MarkAsPublished()
