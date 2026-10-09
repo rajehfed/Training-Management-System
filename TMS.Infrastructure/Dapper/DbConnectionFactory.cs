@@ -1,9 +1,8 @@
 ﻿using System.Data;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
-using TMS.Infrastructure.Dapper;
 
-namespace TMS.Infrastructure.Persistence.Dapper;
+namespace TMS.Infrastructure.Dapper;
 
 public class DbConnectionFactory : IDbConnectionFactory
 {

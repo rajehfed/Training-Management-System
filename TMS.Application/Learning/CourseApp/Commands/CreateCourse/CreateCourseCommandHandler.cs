@@ -24,7 +24,10 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
             request.SellableItemId,
             request.CourseName,
             request.Description,
-            request.Duration);
+            request.Duration,
+            request.Status,
+            request.CreatedAt,
+            request.UpdatedAt);
 
         await _courseRepository.AddAsync(course, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -9,4 +9,7 @@ public record CreateCourseCommand(
     int SellableItemId,
     string CourseName,
     string? Description,
-    CourseDuration Duration) : IRequest<ResultBase>;
+    CourseDuration Duration,
+    CourseStatus Status,
+    DateTime CreatedAt,
+    DateTime? UpdatedAt) : IRequest<ResultBase>;

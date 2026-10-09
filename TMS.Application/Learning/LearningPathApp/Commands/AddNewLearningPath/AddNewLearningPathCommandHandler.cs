@@ -26,7 +26,10 @@ public class AddNewLearningPathCommandHandler : IRequestHandler<AddNewLearningPa
             request.SellableItemId,
             request.PathName,
             new Outcomes(outcomes),
-            request.Audience);
+            request.Audience,
+            request.Status,
+            request.CreatedAt,
+            request.UpdatedAt);
 
         await _learningPathRepository.AddAsync(learningPath, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -209,7 +209,7 @@ public class CourseRepository : ICourseRepository
             course.SellableItemId,
             course.CourseName,
             course.Description,
-            course.Duration,
+            Duration = course.Duration.Minutes,
             Status = course.Status.ToString(),
             course.CreatedAt,
             course.UpdatedAt,
