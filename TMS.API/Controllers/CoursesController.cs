@@ -1,9 +1,13 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TMS.Application.Learning.CourseApp.Commands.ArchiveCourse;
 using TMS.Application.Learning.CourseApp.Commands.CreateCourse;
 using TMS.Application.Learning.CourseApp.Commands.PublishCourse;
 using TMS.Application.Learning.CourseApp.Commands.UpdateCourse;
+using TMS.Application.Learning.CourseApp.Commands.UpdateCourseDescription;
+using TMS.Application.Learning.CourseApp.Commands.UpdateCourseDuration;
+using TMS.Application.Learning.CourseApp.Commands.UpdateCourseTitle;
 
 namespace TMS.API.Controllers;
 
@@ -59,6 +63,76 @@ public class CoursesController : ControllerBase
             return BadRequest(result);
         }
 
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPost("{id:int}/archive")]
+    public async Task<IActionResult> ArchiveCourse(int id, CancellationToken cancellationToken)
+    {
+        var command = new ArchiveCourseCommand(id);
+        var result = await _mediator.Send(command, cancellationToken);
+
+        if(!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPut("{id:int}/duration")]
+    public async Task<IActionResult> UpdateCourseDuration(
+        int id,
+        [FromBody] UpdateCourseDurationCommand command,
+        CancellationToken cancellationToken)
+    {
+        if (id != command.CourseId)
+        {
+            return BadRequest("The course ID in the path does not match the ID in the request.");
+        }
+        var result = await _mediator.Send(command, cancellationToken);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPut("{id:int}/description")]
+    public async Task<IActionResult> UpdateCourseDescription(
+        int id,
+        [FromBody] UpdateCourseDescriptionCommand command,
+        CancellationToken cancellationToken)
+    {
+        if(id != command.CourseId)
+            return BadRequest("The course ID in the path does not match the ID in the request.");
+
+        var result = await _mediator.Send(command, cancellationToken);
+
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPut("{id:int}/title")]
+    public async Task<IActionResult> UpdateCourseTitle(
+        int id,
+        [FromBody] UpdateCourseTitleCommand command,
+        CancellationToken cancellationToken)
+    {
+        if (id != command.CourseId)
+            return BadRequest("The course ID in the path does not match the ID in the request.");
+        var result = await _mediator.Send(command, cancellationToken);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result);
+        }
         return Ok(result);
     }
 }
