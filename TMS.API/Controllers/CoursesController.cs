@@ -8,11 +8,17 @@ using TMS.Application.Learning.CourseApp.Commands.UpdateCourse;
 using TMS.Application.Learning.CourseApp.Commands.UpdateCourseDescription;
 using TMS.Application.Learning.CourseApp.Commands.UpdateCourseDuration;
 using TMS.Application.Learning.CourseApp.Commands.UpdateCourseTitle;
+using TMS.Application.Learning.CourseApp.Queries.GetAllCourses;
+using TMS.Application.Learning.CourseApp.Queries.GetCourseById;
+using TMS.Application.Learning.CourseApp.Queries.GetCourseByName;
 
 namespace TMS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Produces("application/json")]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+[Authorize]
 public class CoursesController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -51,7 +57,6 @@ public class CoursesController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
     [HttpPost("{id:int}/publish")]
     public async Task<IActionResult> PublishCourse(int id, CancellationToken cancellationToken)
     {
@@ -66,7 +71,6 @@ public class CoursesController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
     [HttpPost("{id:int}/archive")]
     public async Task<IActionResult> ArchiveCourse(int id, CancellationToken cancellationToken)
     {
@@ -81,7 +85,6 @@ public class CoursesController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
     [HttpPut("{id:int}/duration")]
     public async Task<IActionResult> UpdateCourseDuration(
         int id,
@@ -100,7 +103,6 @@ public class CoursesController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
     [HttpPut("{id:int}/description")]
     public async Task<IActionResult> UpdateCourseDescription(
         int id,
@@ -119,7 +121,6 @@ public class CoursesController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
     [HttpPut("{id:int}/title")]
     public async Task<IActionResult> UpdateCourseTitle(
         int id,
@@ -133,6 +134,43 @@ public class CoursesController : ControllerBase
         {
             return BadRequest(result);
         }
+        return Ok(result);
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetCourseById(int id, CancellationToken cancellationToken)
+    {
+        var query = new GetCourseByIdQuery(id);
+        var result = await _mediator.Send(query, cancellationToken);
+        if (result == null)
+        {
+            return NotFound();
+        }
+        return Ok(result);
+    }
+    [HttpGet("title")]
+    public async Task<IActionResult> GetCourseByName(string title, CancellationToken cancellationToken)
+    {
+        var query = new GetCourseByTitleQuery(title);
+        var result = await _mediator.Send(query, cancellationToken);
+        if (result == null)
+        {
+            return NotFound();
+        }
+        return Ok(result);
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetCourses(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? searchTerm = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetAllCoursesQuery(pageNumber, pageSize, searchTerm);
+        var result = await _mediator.Send(query, cancellationToken);
+
         return Ok(result);
     }
 }

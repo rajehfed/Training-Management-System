@@ -1,5 +1,7 @@
 ﻿using Dapper;
+using MediatR;
 using TMS.Application.Shared.Interfaces;
+using TMS.Application.Shared.Models;
 using TMS.Application.Shared.Models.DTOs;
 using TMS.Domain.LearningDomain.Course;
 using TMS.Infrastructure.Dapper;
@@ -186,6 +188,59 @@ public class CourseRepository : ICourseRepository
         if (dto is null) return null;
 
         return CourseMapper.ToDomain(dto);
+    }
+
+    public async Task<PaginatedList<CourseDto>> GetCoursesAsync(int pageNumber = 0, int pageSize = 10, string? searchTerm = null)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+
+        pageNumber = pageNumber < 1 ? 1 : pageNumber;
+        var offset = (pageNumber - 1) * pageSize;
+
+        const string sql = @"
+            SELECT 
+                CourseId AS Id,
+                SellableItemId,
+                CourseName,
+                Description,
+                Duration,
+                Status,
+                CreatedAt,
+                UpdatedAt,
+                COUNT(*) OVER() AS TotalCount
+            FROM Course 
+            WHERE (@SearchTerm IS NULL OR CourseName ILIKE '%' || @SearchTerm || '%')
+            ORDER BY CreatedAt DESC
+            LIMIT @PageSize OFFSET @Offset;";
+
+        var parameters = new
+        {
+            SearchTerm = searchTerm,
+            PageSize = pageSize,
+            Offset = offset
+        };
+
+        var rawResults = await connection.QueryAsync<CourseQueryResult>(sql, parameters);
+        var resultsList = rawResults.ToList();
+
+        if(resultsList.Count == 0)
+            return new PaginatedList<CourseDto>([], 0, pageNumber, pageSize);
+
+        var totalCount = resultsList.First().TotalCount;
+
+        var dtos = resultsList.Select(c => new CourseDto
+        (
+            Id: c.Id,
+            SellableItemId: c.SellableItemId,
+            CourseName: c.Title,
+            Description: c.Description,
+            Duration: c.Duration,
+            Status: c.Status,
+            CreatedAt: c.CreatedAt,
+            UpdatedAt: c.UpdatedAt
+        )).ToList();
+
+        return new PaginatedList<CourseDto>(dtos, totalCount, pageNumber, pageSize);
     }
 
     public void Update(Course course)
