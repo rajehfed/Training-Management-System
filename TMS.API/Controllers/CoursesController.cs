@@ -138,6 +138,7 @@ public class CoursesController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
+    [Authorize("Admin")]
     public async Task<IActionResult> GetCourseById(int id, CancellationToken cancellationToken)
     {
         var query = new GetCourseByIdQuery(id);
