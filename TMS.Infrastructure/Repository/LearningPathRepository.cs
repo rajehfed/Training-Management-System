@@ -113,20 +113,48 @@ public class LearningPathRepository : ILearningPathRepository
 
         const string sql = @"
             SELECT 
-                LearningPathId AS Id, 
-                SellableItemId, 
-                PathName, 
-                Outcomes, 
-                Audience, 
-                Status, 
-                CreatedAt, 
-                UpdatedAt
-            FROM learningpath
-            WHERE learningpath.LearningPathId = @PathId";
+	            lp.LearningPathId AS PathId, 
+	            lp.SellableItemId, 
+	            lp.PathName, 
+	            lp.Outcomes, 
+	            lp.Audience, 
+	            lp.Status, 
+	            lp.CreatedAt, 
+	            lp.UpdatedAt,
+	            cip.CourseId,
+	            c.CourseName,
+	            cip.OrderInPath,
+	            c.Description
+            FROM learningpath lp
+            LEFT JOIN courseinpath cip ON cip.LearningPathId = lp.LearningPathId
+            LEFT JOIN course c ON cip.CourseId = c.CourseId
+            WHERE lp.LearningPathId = @PathId;";
 
         var command = new CommandDefinition(sql, new { PathId = pathId }, cancellationToken: cancellationToken);
+        var pathDictionary = new Dictionary<int, LearningPathDto>();
 
-        var dto = await connection.QueryFirstOrDefaultAsync<LearningPathDto?>(command);
+        await connection.QueryAsync<
+            LearningPathDto, 
+            CourseInPathDto, 
+            LearningPathDto> (
+            command,
+            (path, course) =>
+            {
+                if (!pathDictionary.TryGetValue(path.PathId, out var currentPath))
+                {
+                    currentPath = path with { Courses = new List<CourseInPathDto>() };
+                    pathDictionary.Add(currentPath.PathId, currentPath);
+                }
+
+                if (course is not null && course.CourseId != 0)
+                    ((List<CourseInPathDto>)currentPath.Courses).Add(course);
+
+                return currentPath;
+            },
+            splitOn:"CourseId"
+            );
+
+        var dto = pathDictionary.Values.FirstOrDefault();
         if (dto is null) return null;
 
         return LearningPathMapper.ToDomain(dto);
@@ -138,20 +166,48 @@ public class LearningPathRepository : ILearningPathRepository
 
         const string sql = @"
             SELECT 
-                LearningPathId AS Id, 
-                SellableItemId, 
-                PathName, 
-                Outcomes, 
-                Audience, 
-                Status, 
-                CreatedAt, 
-                UpdatedAt
-            FROM learningpath
-            WHERE learningpath.PathName = @PathName";
+	            lp.LearningPathId AS PathId, 
+	            lp.SellableItemId, 
+	            lp.PathName, 
+	            lp.Outcomes, 
+	            lp.Audience, 
+	            lp.Status, 
+	            lp.CreatedAt, 
+	            lp.UpdatedAt,
+	            cip.CourseId,
+	            c.CourseName,
+	            cip.OrderInPath,
+	            c.Description
+            FROM learningpath lp
+            LEFT JOIN courseinpath cip ON cip.LearningPathId = lp.LearningPathId
+            LEFT JOIN course c ON cip.CourseId = c.CourseId
+            WHERE lp.PathName = @pathName;";
 
         var command = new CommandDefinition(sql, new { PathName = pathName }, cancellationToken: cancellationToken);
+        var pathDictionary = new Dictionary<int, LearningPathDto>();
 
-        var dto = await connection.QueryFirstOrDefaultAsync<LearningPathDto?>(command);
+        await connection.QueryAsync<
+            LearningPathDto,
+            CourseInPathDto,
+            LearningPathDto>(
+            command,
+            (path, course) =>
+            {
+                if (!pathDictionary.TryGetValue(path.PathId, out var currentPath))
+                {
+                    currentPath = path with { Courses = new List<CourseInPathDto>() };
+                    pathDictionary.Add(currentPath.PathId, currentPath);
+                }
+
+                if (course is not null && course.CourseId != 0)
+                    ((List<CourseInPathDto>)currentPath.Courses).Add(course);
+
+                return currentPath;
+            },
+            splitOn: "CourseId"
+            );
+
+        var dto = pathDictionary.Values.FirstOrDefault();
         if (dto is null) return null;
 
         return LearningPathMapper.ToDomain(dto);

@@ -30,25 +30,28 @@ public class GetLearningPathByIdQueryHandler : IRequestHandler<GetLearningPathBy
             .Select(cip =>
             {
                 var course = courses.FirstOrDefault(c => c.Id == cip.CourseId);
-                return new CourseInPathDto(
-                    cip.CourseId,
-                    course?.CourseName ?? "Unknown Course",
-                    cip.OrderInPath,
-                    course?.Description
-                );
+                return new CourseInPathDto {
+                    CourseId = cip.CourseId,
+                    PathId = cip.LearningPathId,
+                    CourseName = course?.CourseName ?? "Unknown Course",
+                    OrderInPath = cip.OrderInPath,
+                    Description = course?.Description
+                };
             })
-            .OrderBy(c => c.SequenceOrder)
+            .OrderBy(c => c.OrderInPath)
             .ToList();
 
-        return new LearningPathDto(
-            path.Id,
-            path.SellableItemId,
-            path.PathName,
-            path.Outcomes.ToString(),
-            path.Audience,
-            path.Status.Name,
-            courseDtos,
-            path.CreatedAt,
-            path.UpdatedAt);
+        return new LearningPathDto
+        {
+            PathId = path.Id,
+            SellableItemId = path.SellableItemId,
+            PathName = path.PathName,
+            Outcomes = path.Outcomes.ToString(),
+            Audience = path.Audience,
+            Status = path.Status.Name,
+            CreatedAt = path.CreatedAt,
+            UpdatedAt = path.UpdatedAt,
+            Courses = courseDtos
+        };
     }
 }

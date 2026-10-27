@@ -1,5 +1,4 @@
-﻿using System.Net.NetworkInformation;
-using TMS.Application.Shared.Models.DTOs;
+﻿using TMS.Application.Shared.Models.DTOs;
 using TMS.Domain.LearningDomain.LearningPath;
 
 namespace TMS.Infrastructure.Mappers;
@@ -16,7 +15,8 @@ public static class LearningPathMapper
             dto.Audience,
             PathStatus.FromName(dto.Status),
             dto.CreatedAt,
-            dto.UpdatedAt
+            dto.UpdatedAt,
+            [.. dto.Courses.Select(cip => new Domain.LearningDomain.CourseInPath.CourseInPath(cip.CourseId, cip.PathId, cip.OrderInPath))]
         );
     }
 }
