@@ -1,6 +1,8 @@
 ﻿using Dapper;
 using TMS.Application.Shared.Interfaces;
 using TMS.Application.Shared.Models.DTOs;
+using TMS.Domain.LearningDomain.Course;
+using TMS.Domain.LearningDomain.CourseInPath;
 using TMS.Domain.LearningDomain.LearningPath;
 using TMS.Infrastructure.Dapper;
 using TMS.Infrastructure.Mappers;
@@ -127,7 +129,7 @@ public class LearningPathRepository : ILearningPathRepository
 	            c.Description
             FROM learningpath lp
             LEFT JOIN courseinpath cip ON cip.LearningPathId = lp.LearningPathId
-            LEFT JOIN course c ON cip.CourseId = c.CourseId
+            LEFT JOIN courseDto c ON cip.CourseId = c.CourseId
             WHERE lp.LearningPathId = @PathId;";
 
         var command = new CommandDefinition(sql, new { PathId = pathId }, cancellationToken: cancellationToken);
@@ -180,7 +182,7 @@ public class LearningPathRepository : ILearningPathRepository
 	            c.Description
             FROM learningpath lp
             LEFT JOIN courseinpath cip ON cip.LearningPathId = lp.LearningPathId
-            LEFT JOIN course c ON cip.CourseId = c.CourseId
+            LEFT JOIN courseDto c ON cip.CourseId = c.CourseId
             WHERE lp.PathName = @pathName;";
 
         var command = new CommandDefinition(sql, new { PathName = pathName }, cancellationToken: cancellationToken);
@@ -211,6 +213,57 @@ public class LearningPathRepository : ILearningPathRepository
         if (dto is null) return null;
 
         return LearningPathMapper.ToDomain(dto);
+    }
+    public async Task<List<LearningPath>?> GetAllLearningPathsAsync(CancellationToken cancellationToken = default)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+
+        const string sql = @"
+            SELECT 
+	            lp.LearningPathId AS PathId, 
+	            lp.SellableItemId, 
+	            lp.PathName, 
+	            lp.Outcomes, 
+	            lp.Audience, 
+	            lp.Status, 
+	            lp.CreatedAt, 
+	            lp.UpdatedAt,
+	            cip.CourseId,
+	            c.CourseName,
+	            cip.OrderInPath,
+	            c.Description
+            FROM learningpath lp
+            LEFT JOIN courseinpath cip ON cip.LearningPathId = lp.LearningPathId
+            LEFT JOIN courseDto c ON cip.CourseId = c.CourseId;";
+
+        var learningPathDictionary = new Dictionary<int, LearningPathDto>();
+
+        var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+
+        await connection.QueryAsync<LearningPathDto, CourseInPathDto, LearningPathDto>(
+        command,
+        (pathDto, courseDto) =>
+        {
+            if (!learningPathDictionary.TryGetValue(pathDto.PathId, out var currentPath))
+            {
+                currentPath = pathDto with { Courses = new List<CourseInPathDto>()};
+                learningPathDictionary.Add(currentPath.PathId, currentPath);
+            }
+
+            if (courseDto != null && courseDto.CourseId != 0)
+            {
+                ((List<CourseInPathDto>)currentPath.Courses).Add(courseDto);
+            }
+
+            return currentPath;
+        },
+        splitOn: "CourseId");
+
+        var learningPaths = learningPathDictionary.Values
+        .Select(dto => LearningPathMapper.ToDomain(dto))
+        .ToList();
+
+        return learningPaths!;
     }
 
     public void Update(LearningPath learningPath)
