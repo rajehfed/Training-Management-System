@@ -28,7 +28,7 @@ public class LearningPathRepository : ILearningPathRepository
         {
             const string sqlSellableItem = @"
                 INSERT INTO SellableItem
-                    (ItemType, CreatedAt)
+                    (SellableItemtype, CreatedAt)
                 VALUES
                     (@ItemType, @CreatedAt)
                 RETURNING SellableItemId; ";
@@ -67,9 +67,9 @@ public class LearningPathRepository : ILearningPathRepository
                 {
                     SellableItemId = sellableItemId,
                     learningPath.PathName,
-                    learningPath.Outcomes,
+                    Outcomes = learningPath.Outcomes?.Value,
                     learningPath.Audience,
-                    learningPath.Status.Name,
+                    Status = learningPath.Status.Name,
                     learningPath.CreatedAt,
                     learningPath.UpdatedAt
                 },
@@ -129,7 +129,7 @@ public class LearningPathRepository : ILearningPathRepository
 	            c.Description
             FROM learningpath lp
             LEFT JOIN courseinpath cip ON cip.LearningPathId = lp.LearningPathId
-            LEFT JOIN courseDto c ON cip.CourseId = c.CourseId
+            LEFT JOIN course c ON cip.CourseId = c.CourseId
             WHERE lp.LearningPathId = @PathId;";
 
         var command = new CommandDefinition(sql, new { PathId = pathId }, cancellationToken: cancellationToken);
@@ -182,7 +182,7 @@ public class LearningPathRepository : ILearningPathRepository
 	            c.Description
             FROM learningpath lp
             LEFT JOIN courseinpath cip ON cip.LearningPathId = lp.LearningPathId
-            LEFT JOIN courseDto c ON cip.CourseId = c.CourseId
+            LEFT JOIN course c ON cip.CourseId = c.CourseId
             WHERE lp.PathName = @pathName;";
 
         var command = new CommandDefinition(sql, new { PathName = pathName }, cancellationToken: cancellationToken);
@@ -234,7 +234,7 @@ public class LearningPathRepository : ILearningPathRepository
 	            c.Description
             FROM learningpath lp
             LEFT JOIN courseinpath cip ON cip.LearningPathId = lp.LearningPathId
-            LEFT JOIN courseDto c ON cip.CourseId = c.CourseId;";
+            LEFT JOIN course c ON cip.CourseId = c.CourseId;";
 
         var learningPathDictionary = new Dictionary<int, LearningPathDto>();
 
@@ -246,7 +246,7 @@ public class LearningPathRepository : ILearningPathRepository
         {
             if (!learningPathDictionary.TryGetValue(pathDto.PathId, out var currentPath))
             {
-                currentPath = pathDto with { Courses = new List<CourseInPathDto>()};
+                currentPath = pathDto with { Courses = new List<CourseInPathDto>() };
                 learningPathDictionary.Add(currentPath.PathId, currentPath);
             }
 
@@ -271,7 +271,7 @@ public class LearningPathRepository : ILearningPathRepository
         using var connection = _connectionFactory.CreateConnection();
 
         const string sql = @"
-            UPDATE learningpath
+            UPDATE LearningPath
             SET 
                 PathName = @PathName,
                 SellableItemId = @SellableItemId,
@@ -286,10 +286,10 @@ public class LearningPathRepository : ILearningPathRepository
             PathId = learningPath.Id,
             learningPath.PathName,
             learningPath.SellableItemId,
-            learningPath.Outcomes,
+            Outcomes = learningPath.Outcomes?.Value,
             learningPath.Audience,
             Status = learningPath.Status.Name,
-            UpdatedAt = learningPath.UpdatedAt
+            learningPath.UpdatedAt
         });
 
         connection.Execute(command);

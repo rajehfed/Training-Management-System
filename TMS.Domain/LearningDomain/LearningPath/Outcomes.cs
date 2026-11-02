@@ -6,6 +6,7 @@ public class Outcomes : ValueObject
 {
     private readonly List<string> _outcomeList = [];
     public IReadOnlyList<string> Items => _outcomeList.AsReadOnly();
+    public string Value => string.Join(',', _outcomeList);
 
     protected Outcomes() { }
 

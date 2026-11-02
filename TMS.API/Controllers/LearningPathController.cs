@@ -6,6 +6,7 @@ using TMS.Application.Learning.LearningPathApp.Commands.AddNewLearningPath;
 using TMS.Application.Learning.LearningPathApp.Commands.ArchiveLearningPath;
 using TMS.Application.Learning.LearningPathApp.Commands.PublishLearningPath;
 using TMS.Application.Learning.LearningPathApp.Commands.UpdateLearningPath;
+using TMS.Application.Learning.LearningPathApp.Queries.GetAllLearningPaths;
 using TMS.Application.Learning.LearningPathApp.Queries.GetLearningPathById;
 using TMS.Application.Learning.LearningPathApp.Queries.GetLearningPathByName;
 using TMS.Domain.Shared.Results;
@@ -98,7 +99,7 @@ public class LearningPathController : ControllerBase
     //    return Ok(result);
     //}
 
-    [HttpPost("{id:int}/publish")]
+    [HttpPut("{id:int}/publish")]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -113,7 +114,7 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("{id:int}/archive")]
+    [HttpPut("{id:int}/archive")]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -158,18 +159,18 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    //[HttpGet]
-    //[AllowAnonymous]
-    //[ProducesResponseType(StatusCodes.Status200OK)]
-    //public async Task<IActionResult> GetLearningPaths(
-    //    [FromQuery] int pageNumber = 1,
-    //    [FromQuery] int pageSize = 10,
-    //    [FromQuery] string? searchTerm = null,
-    //    CancellationToken cancellationToken = default)
-    //{
-    //    var query = new GetAllLearningPathsQuery(pageNumber, pageSize, searchTerm);
-    //    var result = await _mediator.Send(query, cancellationToken);
+    [HttpGet]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetLearningPaths(
+        //[FromQuery] int pageNumber = 1,
+        //[FromQuery] int pageSize = 10,
+        //[FromQuery] string? searchTerm = null,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetAllLearningPathsQuery();
+        var result = await _mediator.Send(query, cancellationToken);
 
-    //    return Ok(result);
-    //}
+        return Ok(result);
+    }
 }

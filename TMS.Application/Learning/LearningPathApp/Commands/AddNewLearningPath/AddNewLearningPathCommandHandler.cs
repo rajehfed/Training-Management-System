@@ -12,7 +12,6 @@ public class AddNewLearningPathCommandHandler : IRequestHandler<AddNewLearningPa
 
     public AddNewLearningPathCommandHandler(
         ILearningPathRepository learningPathRepository,
-        ICourseRepository courseRepository,
         IUnitOfWork unitOfWork)
     {
         _learningPathRepository = learningPathRepository;
@@ -20,16 +19,18 @@ public class AddNewLearningPathCommandHandler : IRequestHandler<AddNewLearningPa
     }
     public async Task<ResultBase> Handle(AddNewLearningPathCommand request, CancellationToken cancellationToken)
     {
-        var outcomes = request.Outcomes.Split([',']).ToList();
+        var outcomes = request.Outcomes
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
         var learningPath = new LearningPath(
-            request.PathId,
-            request.SellableItemId,
+           0,
+           0,
             request.PathName,
             new Outcomes(outcomes),
             request.Audience,
-            request.Status,
-            request.CreatedAt,
-            request.UpdatedAt,
+            PathStatus.Draft,
+            DateTime.UtcNow,
+            null,
             []);
 
         await _learningPathRepository.AddAsync(learningPath, cancellationToken);
