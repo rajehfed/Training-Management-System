@@ -40,6 +40,19 @@ public class Course : AggregateRoot<int>
         UpdatedAt = updatedAt;
     }
 
+    public static Course Create(string name, string? description, CourseDuration? duration)
+    {
+        return new Course(
+            0,
+            0,
+            name,
+            description,
+            duration,
+            CourseStatus.Draft,
+            DateTime.UtcNow,
+            null);
+    }
+
     public ResultBase MarkAsPublished()
     {
         if (Status == CourseStatus.Published)

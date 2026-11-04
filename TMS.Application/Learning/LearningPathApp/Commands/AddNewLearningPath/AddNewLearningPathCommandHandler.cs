@@ -22,16 +22,7 @@ public class AddNewLearningPathCommandHandler : IRequestHandler<AddNewLearningPa
         var outcomes = request.Outcomes
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .ToList();
-        var learningPath = new LearningPath(
-           0,
-           0,
-            request.PathName,
-            new Outcomes(outcomes),
-            request.Audience,
-            PathStatus.Draft,
-            DateTime.UtcNow,
-            null,
-            []);
+        var learningPath = LearningPath.Create(request.PathName, new Outcomes(outcomes), request.Audience);
 
         await _learningPathRepository.AddAsync(learningPath, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

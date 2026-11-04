@@ -1,8 +1,6 @@
 ﻿using Dapper;
 using TMS.Application.Shared.Interfaces;
 using TMS.Application.Shared.Models.DTOs;
-using TMS.Domain.LearningDomain.Course;
-using TMS.Domain.LearningDomain.CourseInPath;
 using TMS.Domain.LearningDomain.LearningPath;
 using TMS.Infrastructure.Dapper;
 using TMS.Infrastructure.Mappers;

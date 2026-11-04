@@ -29,7 +29,7 @@ public class CourseRepository : ICourseRepository
         {
             const string sqlSellableItem = @"
                 INSERT INTO SellableItem
-                    (ItemType, CreatedAt)
+                    (SellableItemtype, CreatedAt)
                 VALUES
                     (@ItemType, @CreatedAt)
                 RETURNING SellableItemId; ";
@@ -68,7 +68,7 @@ public class CourseRepository : ICourseRepository
                     SellableItemId = sellableItemId,
                     course.CourseName,
                     course.Description,
-                    course.Duration,
+                    Duration = course.Duration.Minutes,
                     Status = course.Status.ToString(),
                     course.CreatedAt,
                     course.UpdatedAt

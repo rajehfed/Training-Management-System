@@ -16,9 +16,9 @@ namespace TMS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Produces("application/json")]
+//[Produces("application/json")]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-[Authorize]
+//[Authorize]
 public class CoursesController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -138,7 +138,7 @@ public class CoursesController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    [Authorize("Admin")]
+    //[Authorize("Admin")]
     public async Task<IActionResult> GetCourseById(int id, CancellationToken cancellationToken)
     {
         var query = new GetCourseByIdQuery(id);

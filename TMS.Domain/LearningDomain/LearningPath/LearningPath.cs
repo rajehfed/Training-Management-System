@@ -43,6 +43,19 @@ public class LearningPath : AggregateRoot<int>
         _courses = courses;
     }
 
+    public static LearningPath Create(string name, Outcomes outcomes, string? audience)
+    {
+        return new LearningPath(
+            0,
+            0,
+            name,
+            outcomes,
+            audience,
+            PathStatus.Draft,
+            DateTime.Now,
+            null,
+            []);
+    }
     public ResultBase MarkAsPublished()
     {
         if (Status == PathStatus.Published)

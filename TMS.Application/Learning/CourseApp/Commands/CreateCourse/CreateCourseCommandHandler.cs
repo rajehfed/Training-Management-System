@@ -19,15 +19,7 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, R
     }
     public async Task<ResultBase> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
     {
-        var course = new Course(
-            request.Id,
-            request.SellableItemId,
-            request.CourseName,
-            request.Description,
-            request.Duration,
-            request.Status,
-            request.CreatedAt,
-            request.UpdatedAt);
+        var course = Course.Create(request.CourseName, request.Description, request.Duration);
 
         await _courseRepository.AddAsync(course, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
