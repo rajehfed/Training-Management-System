@@ -166,6 +166,29 @@ public class LearningPath : AggregateRoot<int>
         AddDomainEvent(new ChangingCourseOrderInPathChangedDomainEvent(this.Id));
         return ResultBase.Success();
     }
+    public ResultBase RemoveCourseFromPath(int courseId)
+    {
+        if (Status == PathStatus.Archived)
+            return LearningPathError.InvalidStatus;
+
+        var courseInPath = _courses.FirstOrDefault(c => c.CourseId == courseId);
+
+        if (courseInPath is null)
+            return LearningPathError.CourseNotFoundInThePath;
+
+
+        foreach (var course in _courses)
+        {
+            if (course.OrderInPath >= courseInPath.OrderInPath && course.CourseId != courseId)
+                course.UpdateOrderInPath(course.OrderInPath - 1);
+        }
+
+        _courses.Remove(courseInPath);
+        this.UpdatedAt = DateTime.UtcNow;
+
+        AddDomainEvent(new RemovingCourseFromPathDomainEvent(this.Id));
+        return ResultBase.Success();
+    }
 
     public ResultBase UpdateDetails(string pathName, string outcomes, string audience)
     {

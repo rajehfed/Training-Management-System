@@ -57,7 +57,7 @@ public class CoursesController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("{id:int}/publish")]
+    [HttpPatch("{id:int}/publish")]
     public async Task<IActionResult> PublishCourse(int id, CancellationToken cancellationToken)
     {
         var command = new PublishCourseCommand(id);
@@ -71,7 +71,7 @@ public class CoursesController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("{id:int}/archive")]
+    [HttpPatch("{id:int}/archive")]
     public async Task<IActionResult> ArchiveCourse(int id, CancellationToken cancellationToken)
     {
         var command = new ArchiveCourseCommand(id);
@@ -85,7 +85,7 @@ public class CoursesController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPut("{id:int}/duration")]
+    [HttpPatch("{id:int}/duration")]
     public async Task<IActionResult> UpdateCourseDuration(
         int id,
         [FromBody] UpdateCourseDurationCommand command,
@@ -103,7 +103,7 @@ public class CoursesController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPut("{id:int}/description")]
+    [HttpPatch("{id:int}/description")]
     public async Task<IActionResult> UpdateCourseDescription(
         int id,
         [FromBody] UpdateCourseDescriptionCommand command,
@@ -121,7 +121,7 @@ public class CoursesController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPut("{id:int}/title")]
+    [HttpPatch("{id:int}/title")]
     public async Task<IActionResult> UpdateCourseTitle(
         int id,
         [FromBody] UpdateCourseTitleCommand command,

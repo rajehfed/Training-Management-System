@@ -5,7 +5,11 @@ using TMS.Application.Learning.LearningPathApp.Commands.AddCourseToPath;
 using TMS.Application.Learning.LearningPathApp.Commands.AddNewLearningPath;
 using TMS.Application.Learning.LearningPathApp.Commands.ArchiveLearningPath;
 using TMS.Application.Learning.LearningPathApp.Commands.PublishLearningPath;
+using TMS.Application.Learning.LearningPathApp.Commands.RemoveCourseFromPath;
 using TMS.Application.Learning.LearningPathApp.Commands.UpdateLearningPath;
+using TMS.Application.Learning.LearningPathApp.Commands.UpdateLearningPathAudience;
+using TMS.Application.Learning.LearningPathApp.Commands.UpdateLearningPathName;
+using TMS.Application.Learning.LearningPathApp.Commands.UpdateLearningPathOutcomes;
 using TMS.Application.Learning.LearningPathApp.Queries.GetAllLearningPaths;
 using TMS.Application.Learning.LearningPathApp.Queries.GetLearningPathById;
 using TMS.Application.Learning.LearningPathApp.Queries.GetLearningPathByName;
@@ -62,7 +66,7 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("{id:int}/courses/{courseId:int}")]
+    [HttpPatch("{id:int}/courses/{courseId:int}")]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -81,25 +85,83 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    //[HttpDelete("{id:int}/courses/{courseId:int}")]
-    //[ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
-    //[ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
-    //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    //public async Task<IActionResult> RemoveCourseFromPath(
-    //    int id,
-    //    int courseId,
-    //    CancellationToken cancellationToken)
-    //{
-    //    var command = new RemoveCourseFromPathCommand(id, courseId);
-    //    var result = await _mediator.Send(command, cancellationToken);
+    [HttpPatch("{id:int}/name")]
+    [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> UpdatePathName(
+        int id,
+        [FromBody] UpdateLearningPathNameCommand command,
+        CancellationToken cancellationToken)
+    {
+        if (id != command.PathId)
+        {
+            return BadRequest("The learning path ID in the path parameter does not match the body payload.");
+        }
+        var result = await _mediator.Send(command, cancellationToken);
+        if (!result.IsSuccess)
+            return BadRequest(result);
+        return Ok(result);
+    }
 
-    //    if (!result.IsSuccess)
-    //        return BadRequest(result);
+    [HttpPatch("{id:int}/audience")]
+    [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> UpdatePathAudience(
+        int id,
+        [FromBody] UpdateLearningPathAudienceCommand command,
+        CancellationToken cancellationToken)
+    {
+        if (id != command.PathId)
+        {
+            return BadRequest("The learning path ID in the path parameter does not match the body payload.");
+        }
+        var result = await _mediator.Send(command, cancellationToken);
+        if (!result.IsSuccess)
+            return BadRequest(result);
+        return Ok(result);
+    }
 
-    //    return Ok(result);
-    //}
+    [HttpPatch("{id:int}/outcomes")]
+    [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> UpdatePathOutcomes(
+        int id,
+        [FromBody] UpdateLearningPathOutcomesCommand command,
+        CancellationToken cancellationToken)
+    {
+        if (id != command.PathId)
+        {
+            return BadRequest("The learning path ID in the path parameter does not match the body payload.");
+        }
 
-    [HttpPut("{id:int}/publish")]
+        var result = await _mediator.Send(command, cancellationToken);
+        if (!result.IsSuccess)
+            return BadRequest(result);
+        return Ok(result);
+    }
+
+    [HttpPatch("{id:int}/{courseId:int}")]
+    [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> RemoveCourseFromPath(
+        int id,
+        int courseId,
+        CancellationToken cancellationToken)
+    {
+        var command = new RemoveCourseFromPathCommand(id, courseId);
+        var result = await _mediator.Send(command, cancellationToken);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result);
+    }
+
+    [HttpPatch("{id:int}/publish")]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -114,7 +176,7 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPut("{id:int}/archive")]
+    [HttpPatch("{id:int}/archive")]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -148,7 +210,9 @@ public class LearningPathController : ControllerBase
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetLearningPathByName([FromQuery] string name, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetLearningPathByName(
+        [FromQuery] string name, 
+        CancellationToken cancellationToken)
     {
         var query = new GetLearningPathByNameQuery(name);
         var result = await _mediator.Send(query, cancellationToken);
