@@ -1,5 +1,4 @@
 ﻿using TMS.Domain.Shared;
-using TMS.Domain.Shared.Person;
 
 namespace TMS.Domain.Training.Mentor;
 
@@ -14,4 +13,6 @@ public class Mentor : AggregateRoot<int>
 
         this.PersonId = personId;
     }
+
+    public Mentor Create(int mentorId, int personId) => new(mentorId, personId);
 }

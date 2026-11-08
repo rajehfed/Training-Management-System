@@ -19,4 +19,7 @@ public static class TrainingBatchError
     public static readonly ErrorBase TrainingBatchNotFound = ErrorBase.NotFound(
         "TrainingBatch.TrainingBatchNotFound",
         "The training batch was not found.");
+    public static readonly ErrorBase TrainingBatchAlreadyPointsToACourse = ErrorBase.Conflict(
+        "TrainingBatch.TrainingBatchAlreadyPointsToACourse",
+        "The training batch already points to a course.");
 }
