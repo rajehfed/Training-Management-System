@@ -35,7 +35,7 @@ public class RemoveCourseFromPathCommandHandler : IRequestHandler<RemoveCourseFr
         if (!result.IsSuccess)
             return result;
 
-        _learningPathRepository.Update(learningPath);
+        await _learningPathRepository.RemoveCourseFromLearningPathAsync(request.PathId, request.CourseId, cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

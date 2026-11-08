@@ -40,12 +40,12 @@ public class Course : AggregateRoot<int>
         UpdatedAt = updatedAt;
     }
 
-    public static Course Create(string name, string? description, CourseDuration? duration)
+    public static Course Create(string courseName, string? description, CourseDuration? duration)
     {
         return new Course(
             0,
             0,
-            name,
+            courseName,
             description,
             duration,
             CourseStatus.Draft,

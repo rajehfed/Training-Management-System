@@ -7,7 +7,7 @@ public static class RuleBuilderExtensions
     public static IRuleBuilderOptions<T, string> ValidCourseTitle<T>(this IRuleBuilder<T, string> ruleBuilder)
     {
         return ruleBuilder
-            .NotEmpty().WithMessage("The Title of the course is required")
+            .NotEmpty().WithMessage("The CourseName of the course is required")
             .MaximumLength(150).WithMessage("Must be less than 150 digit");
     }
 

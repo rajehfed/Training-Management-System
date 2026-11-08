@@ -232,7 +232,7 @@ public class CourseRepository : ICourseRepository
         (
             Id: c.Id,
             SellableItemId: c.SellableItemId,
-            CourseName: c.Title,
+            CourseName: c.CourseName,
             Description: c.Description,
             Duration: c.Duration,
             Status: c.Status,

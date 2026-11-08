@@ -263,7 +263,47 @@ public class LearningPathRepository : ILearningPathRepository
 
         return learningPaths!;
     }
+    public async Task AddCourseToLearningPathAsync(
+        int pathId, 
+        int courseId, 
+        int orderInPath, 
+        CancellationToken cancellationToken = default)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        const string sql = @"
+            INSERT INTO CourseInPath (LearningPathId, CourseId, OrderInPath)
+            VALUES (@LearningPathId, @CourseId, @OrderInPath);";
 
+        var command = new CommandDefinition(
+            sql,
+            new 
+            {
+                LearningPathId = pathId, 
+                CourseId = courseId, 
+                OrderInPath = orderInPath 
+            },
+            cancellationToken: cancellationToken);
+
+        await connection.ExecuteAsync(command);
+    }
+    public async Task RemoveCourseFromLearningPathAsync(
+        int pathId,
+        int courseId,
+        CancellationToken cancellationToken = default)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+
+        const string sql = @"
+            DELETE FROM CourseInPath
+            WHERE LearningPathId = @LearningPathId AND CourseId = @CourseId;";
+
+        var command = new CommandDefinition(
+            sql,
+            new { LearningPathId = pathId, CourseId = courseId },
+            cancellationToken: cancellationToken);
+
+        await connection.ExecuteAsync(command);
+    }
     public void Update(LearningPath learningPath)
     {
         using var connection = _connectionFactory.CreateConnection();

@@ -35,7 +35,7 @@ public class AddCourseToPathCommandHandler : IRequestHandler<AddCourseToPathComm
         if (!result.IsSuccess)
             return result;
 
-        _learningPathRepository.Update(learningPath);
+        await _learningPathRepository.AddCourseToLearningPathAsync(request.LearningPathId, request.CourseId, request.OrderInPath, cancellationToken: cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return ResultBase.Success();

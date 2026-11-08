@@ -44,7 +44,7 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPut("{id:int}")]
+    [HttpPut("UpdateLearningPathDetails/{id:int}")]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -66,7 +66,7 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPatch("{id:int}/courses/{courseId:int}")]
+    [HttpPatch("{id:int}/courses/AddCourseToPath/{courseId:int}")]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -85,7 +85,7 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPatch("{id:int}/name")]
+    [HttpPatch("UpdateLearningPathName/{id:int}")]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -104,7 +104,7 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPatch("{id:int}/audience")]
+    [HttpPatch("UpdateLearningPathAudience/{id:int}")]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -123,7 +123,7 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPatch("{id:int}/outcomes")]
+    [HttpPatch("UpdateLearningPathOutcomes/{id:int}")]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -143,7 +143,7 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPatch("{id:int}/{courseId:int}")]
+    [HttpPatch("RemoveCourseFromPath/{id:int}/{courseId:int}")]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -161,7 +161,7 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPatch("{id:int}/publish")]
+    [HttpPatch("PublishLearningPath/{id:int}")]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -176,7 +176,7 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPatch("{id:int}/archive")]
+    [HttpPatch("ArchiveLearningPath/{id:int}")]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -191,7 +191,7 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("GetLearningPathById/{id:int}")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status404NotFound)]
@@ -206,7 +206,7 @@ public class LearningPathController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("by-name")]
+    [HttpGet("GetLearningPathByName")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ResultBase), StatusCodes.Status404NotFound)]
