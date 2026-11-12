@@ -1,10 +1,7 @@
 ﻿namespace TMS.Domain.Shared;
 
-public abstract class DomainException : Exception
+public class DomainException : Exception
 {
-    public string ErrorCode { get; }
-    protected DomainException(string errorCode, string message) : base(message)
-    {
-        ErrorCode = errorCode;
-    }
+    public ErrorBase Error { get; }
+    public DomainException(ErrorBase error) : base(error.Description) => Error = error;
 }

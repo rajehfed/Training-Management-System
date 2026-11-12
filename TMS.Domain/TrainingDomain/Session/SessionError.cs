@@ -23,4 +23,8 @@ public static class SessionError
     public static readonly ErrorBase AttendanceNotAllowedYet = ErrorBase.Forbidden(
         "Session.AttendanceNotAllowedYet",
         "Attendance can only be recorded after the session has started.");
+
+    public static readonly ErrorBase SessionCancelledAttendanceNotAllowed = ErrorBase.Forbidden(
+        "Session.SessionCancelledAttendanceNotAllowed ",
+        "Attendance can not be recorded in the cancelled Sessions");
 }
