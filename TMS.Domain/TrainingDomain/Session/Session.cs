@@ -73,7 +73,6 @@ public class Session : Entity<int>
 
         return ResultBase.Success();
     }
-
     public ResultBase Cancel()
     {
         if (Status == SessionStatus.Completed)
@@ -84,7 +83,6 @@ public class Session : Entity<int>
 
         return ResultBase.Success();
     }
-
     public ResultBase ValidateAttendanceCanBeRecorded()
     {
         if (Status.Equals(SessionStatus.Scheduled))
