@@ -1,5 +1,4 @@
-﻿using TMS.Application.Shared.Models.DTOs;
-using TMS.Domain.LearningDomain.LearningPath;
+﻿using TMS.Domain.LearningDomain.LearningPath;
 
 namespace TMS.Application.Shared.Interfaces;
 

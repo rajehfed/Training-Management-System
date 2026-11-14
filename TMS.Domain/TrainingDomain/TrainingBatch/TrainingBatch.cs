@@ -1,5 +1,4 @@
-﻿using TMS.Domain.LearningDomain.LearningPath;
-using TMS.Domain.Shared;
+﻿using TMS.Domain.Shared;
 using TMS.Domain.Shared.Results;
 using TMS.Domain.TrainingDomain.Session;
 using TMS.Domain.TrainingDomain.TrainingBatch;
@@ -70,7 +69,6 @@ public class TrainingBatch : AggregateRoot<int>
         this.UpdatedAt = DateTime.UtcNow;
         return ResultBase.Success();
     }
-
     public ResultBase Start()
     {
         if (!StartDate.HasValue)
