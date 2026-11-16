@@ -15,7 +15,7 @@ public class Session : Entity<int>
     public DateTime? UpdatedAt { get; private set; }
 
     protected Session(int id) : base(id) { }
-    protected Session(
+    public Session(
         int id,
         int batchId,
         DateTime startTime,

@@ -1,8 +1,11 @@
 ﻿using Dapper;
 using System.Data;
 using TMS.Application.Shared.Interfaces;
+using TMS.Application.Shared.Models.DTOs;
 using TMS.Domain.Training.TrainingBatch;
+using TMS.Domain.TrainingDomain.Session;
 using TMS.Infrastructure.Dapper;
+using TMS.Infrastructure.Mappers;
 
 namespace TMS.Infrastructure.Repository;
 
@@ -69,7 +72,7 @@ public class TrainingBatchRepository : ITrainingBatchRepository
         throw new NotImplementedException();
     }
 
-    public Task<List<TrainingBatch>?> GetAllTrainingBatchesAsync(CancellationToken cancellationToken = default)
+    public async Task<List<TrainingBatch>?> GetAllTrainingBatchesAsync(CancellationToken cancellationToken = default)
     {
         using var connection = _dbConnectionFactory.CreateConnection();
         connection.Open();
@@ -78,21 +81,49 @@ public class TrainingBatchRepository : ITrainingBatchRepository
             SELECT 
 	            tb.BatchId AS Id, 
 	            tb.CourseId AS CourseID, 
-                
 	            tb.MentorId AS MentorID, 
 	            tb.StartDate AS StartDate, 
 	            tb.EndDate AS EndDate, 
 	            tb.Status AS Status, 
 	            tb.CreatedOn AS CreatedAt, 
-	            tb.UpdatedOn AS UpdatedAt
+	            tb.UpdatedOn AS UpdatedAt,
+                
+                s.SessionId,
+                s.BatchId,
+                s.StartTime,
+                s.EndTime,
+                s.RoomId,
+                s.Status,
+                s.CreatedAt,
+                s.UpdatedAt
             FROM 
 	            Trainingbatch tb
-            LEFT JOIN Session s ON tb.BatchId = s.BatchId
-            LEFT JOIN Course c ON tb.CourseId = c.CourseId
-            ;
+            LEFT JOIN Session s ON tb.BatchId = s.BatchId;
         ";
 
-        return [];
+        var batchesDictionary = new Dictionary<int, TrainingBatchDto>();
+
+        var command = new CommandDefinition(sql, cancellationToken: cancellationToken);
+
+        await connection.QueryAsync<TrainingBatchDto, SessionDto, TrainingBatchDto>(
+            command,
+            (batch, session) =>
+            {
+                if (!batchesDictionary.TryGetValue(batch.BatchId, out var currentBatch))
+                {
+                    currentBatch = batch with { Sessions = new List<SessionDto>() };
+                    batchesDictionary.Add(currentBatch.BatchId, currentBatch);
+                }
+
+                if (session is not null && !currentBatch.Sessions.Any(s => s.SessionId == session.SessionId))
+                    ((List<SessionDto>)currentBatch.Sessions).Add(session);
+
+                return currentBatch;
+            }, splitOn: "SessionId");
+
+        return batchesDictionary.Values
+            .Select(dto => TrainingBatchMapper.ToDomain(dto))
+            .ToList();
     }
 
     public Task<TrainingBatch?> GetByIdAsync(int batchId, CancellationToken cancellationToken = default)

@@ -27,7 +27,8 @@ public class TrainingBatch : AggregateRoot<int>
         DateTime? endDate,
         TrainingBatchStatus status,
         DateTime createdAt,
-        DateTime? updatedAt) : base(id)
+        DateTime? updatedAt,
+        List<Session> sessions) : base(id)
     {
         if (courseId <= 0)
             throw new DomainException(TrainingBatchError.CourseRequired);
@@ -39,6 +40,7 @@ public class TrainingBatch : AggregateRoot<int>
         CreatedAt = createdAt;
         UpdatedAt = updatedAt;
         Status = status;
+        _sessions = sessions;
     }
 
     public TrainingBatch Create(
@@ -53,7 +55,8 @@ public class TrainingBatch : AggregateRoot<int>
             endDate: endDate,
             status: TrainingBatchStatus.Draft,
             createdAt: DateTime.UtcNow,
-            updatedAt: null);
+            updatedAt: null,
+            sessions: []);
 
     public ResultBase AddSession(DateTime startTime, DateTime endTime, int? roomID)
     {
