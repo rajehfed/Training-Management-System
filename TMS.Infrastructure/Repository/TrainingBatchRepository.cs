@@ -7,6 +7,7 @@ using TMS.Domain.Training.TrainingBatch;
 using TMS.Domain.TrainingDomain.Session;
 using TMS.Infrastructure.Dapper;
 using TMS.Infrastructure.Mappers;
+using static System.Collections.Specialized.BitVector32;
 
 namespace TMS.Infrastructure.Repository;
 
@@ -58,14 +59,40 @@ public class TrainingBatchRepository : ITrainingBatchRepository
         await connection.ExecuteAsync(command);
     }
 
-    public Task AddSessionToTrainingBatchAsync(
-        int batchId,
-        DateTime startTime,
-        DateTime endTime,
-        int? roomID,
+    public async Task AddSessionToTrainingBatchAsync(
+        Session session,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        using var connection = _dbConnectionFactory.CreateConnection();
+
+        const string sql = @"
+            INSERT INTO Sessions (
+                BatchId,
+                StartTime,
+                EndTime,
+                RoomId,
+                Status,
+                CreatedAt
+            ) VALUES (
+                @BatchId,
+                @StartTime,
+                @EndTime,
+                @RoomId,
+                @Status,
+                @CreatedAt
+            );";
+
+        var command = new CommandDefinition(sql, new
+        {
+            session.BatchId,
+            session.StartTime,
+            session.EndTime,
+            session.RoomId,
+            Status = session.Status.Name,
+            session.CreatedAt
+        }, cancellationToken: cancellationToken);
+
+        await connection.ExecuteAsync(command);
     }
 
     public Task DeleteAsync(TrainingBatch trainingBatch, CancellationToken cancellationToken = default)
@@ -99,7 +126,7 @@ public class TrainingBatchRepository : ITrainingBatchRepository
                 s.UpdatedAt
             FROM 
 	            Trainingbatch tb
-            LEFT JOIN Session s ON tb.BatchId = s.BatchId;
+            LEFT JOIN Sessions s ON tb.BatchId = s.BatchId;
         ";
 
         var batchesDictionary = new Dictionary<int, TrainingBatchDto>();
@@ -153,7 +180,7 @@ public class TrainingBatchRepository : ITrainingBatchRepository
                 s.UpdatedAt
             FROM 
 	            Trainingbatch tb
-            LEFT JOIN Session s ON tb.BatchId = s.BatchId
+            LEFT JOIN Sessions s ON tb.BatchId = s.BatchId
             WHERE tb.BatchId = @BatchId;
         ";
 
@@ -188,9 +215,65 @@ public class TrainingBatchRepository : ITrainingBatchRepository
         return TrainingBatchMapper.ToDomain(dto);
     }
 
-    public Task<TrainingBatch?> GetByIdWithSessionsAsync(int batchId, CancellationToken cancellationToken = default)
+    public async Task<TrainingBatch?> GetByIdWithSessionsAsync(int batchId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        using var connection = _dbConnectionFactory.CreateConnection();
+        connection.Open();
+
+        const string sql = @"
+            SELECT 
+	            tb.BatchId AS Id, 
+	            tb.CourseId AS CourseID, 
+	            tb.MentorId AS MentorID, 
+	            tb.StartDate AS StartDate, 
+	            tb.EndDate AS EndDate, 
+	            tb.Status AS Status, 
+	            tb.CreatedOn AS CreatedAt, 
+	            tb.UpdatedOn AS UpdatedAt,
+                
+                s.SessionId,
+                s.BatchId,
+                s.StartTime,
+                s.EndTime,
+                s.RoomId,
+                s.Status,
+                s.CreatedAt,
+                s.UpdatedAt
+            FROM 
+	            Trainingbatch tb
+            LEFT JOIN Sessions s ON tb.BatchId = s.BatchId
+            WHERE tb.BatchId = @BatchId;
+        ";
+
+        var command = new CommandDefinition(sql, new { BatchId = batchId }, cancellationToken: cancellationToken);
+        var batchDictionary = new Dictionary<int, TrainingBatchDto>();
+
+        await connection.QueryAsync<
+            TrainingBatchDto,
+            SessionDto,
+            TrainingBatchDto>(
+                command,
+                (batch, session) =>
+                {
+                    if (!batchDictionary.TryGetValue(batch.BatchId, out var currentBatch))
+                    {
+                        currentBatch = batch with { Sessions = new List<SessionDto>() };
+                        batchDictionary.Add(currentBatch.BatchId, currentBatch);
+                    }
+
+                    if (batch is not null && session.SessionId != 0)
+                        ((List<SessionDto>)currentBatch.Sessions).Add(session);
+
+                    return currentBatch;
+                },
+                splitOn: "SessionId"
+            );
+
+        var dto = batchDictionary.Values.FirstOrDefault();
+        if (dto is null)
+            return null;
+
+        return TrainingBatchMapper.ToDomain(dto);
     }
 
     public async Task<List<TrainingBatch>?> GetTrainingBatchesByCourseIdAsync(int courseId, CancellationToken cancellationToken = default)
@@ -219,7 +302,7 @@ public class TrainingBatchRepository : ITrainingBatchRepository
                 s.UpdatedAt
             FROM 
 	            Trainingbatch tb
-            LEFT JOIN Session s ON tb.BatchId = s.BatchId
+            LEFT JOIN Sessions s ON tb.BatchId = s.BatchId
             WHERE tb.CourseId = @CourseId;
         ";
 
@@ -274,7 +357,7 @@ public class TrainingBatchRepository : ITrainingBatchRepository
                 s.UpdatedAt
             FROM 
 	            Trainingbatch tb
-            LEFT JOIN Session s ON tb.BatchId = s.BatchId
+            LEFT JOIN Sessions s ON tb.BatchId = s.BatchId
             WHERE tb.MentorId = @MentorId;
         ";
 
@@ -331,7 +414,7 @@ public class TrainingBatchRepository : ITrainingBatchRepository
                 s.UpdatedAt
             FROM 
                 Trainingbatch tb
-            LEFT JOIN Session s ON tb.BatchId = s.BatchId
+            LEFT JOIN Sessions s ON tb.BatchId = s.BatchId
             WHERE tb.Status = @Status;
         ";
 
@@ -360,42 +443,111 @@ public class TrainingBatchRepository : ITrainingBatchRepository
             .ToList();
     }
 
-    public Task RemoveSessionFromTrainingBatchAsync(
-        int batchId,
-        int sessionId,
-        CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> SessionExistsByCourseIdInBatchAsync(
+    public async Task<bool> SessionExistsByCourseIdInBatchAsync(
         int courseId,
         int sessionId,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        using var connection = _dbConnectionFactory.CreateConnection();
+
+        const string sql = @"
+            SELECT EXISTS(
+                SELECT 1
+                FROM Trainingbatch tb
+                JOIN Sessions s ON tb.BatchId = s.BatchId
+                WHERE tb.CourseId = @CourseId AND s.SessionId = @SessionId);";
+
+        var command = new CommandDefinition(
+            sql,
+            new { CourseId = courseId, SessionId = sessionId },
+            cancellationToken: cancellationToken);
+
+        return await connection.ExecuteScalarAsync<bool>(command);
     }
 
-    public Task<bool> SessionExistsInBatchAsync(
+    public async Task<bool> SessionExistsInBatchAsync(
         int batchId,
         int sessionId,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        using var connection = _dbConnectionFactory.CreateConnection();
+
+        const string sql = @"
+            SELECT EXISTS(
+                SELECT 1
+                FROM Trainingbatch tb
+                JOIN Sessions s ON tb.BatchId = s.BatchId
+                WHERE tb.BatchId = @BatchId AND s.SessionId = @SessionId);";
+
+        var command = new CommandDefinition(
+            sql,
+            new { BatchId = batchId, SessionId = sessionId },
+            cancellationToken: cancellationToken);
+
+        return await connection.ExecuteScalarAsync<bool>(command);
     }
 
-    public Task<bool> TrainingBatchExistsAsync(int batchId, CancellationToken cancellationToken = default)
+    public async Task<bool> TrainingBatchExistsAsync(int batchId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        using var connection = _dbConnectionFactory.CreateConnection();
+
+        const string sql = @"
+            SELECT EXISTS(
+                SELECT 1
+                FROM Trainingbatch
+                WHERE BatchId = @BatchId);";
+
+        var command = new CommandDefinition(
+            sql,
+            new { BatchId = batchId },
+            cancellationToken: cancellationToken);
+
+        return await connection.ExecuteScalarAsync<bool>(command);
     }
 
-    public Task<bool> TrainingBatchExistsByCourseIdAsync(int courseId, CancellationToken cancellationToken = default)
+    public async Task<bool> TrainingBatchExistsByCourseIdAsync(int courseId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        using var connection = _dbConnectionFactory.CreateConnection();
+
+        const string sql = @"
+            SELECT EXISTS(
+                SELECT 1
+                FROM Trainingbatch
+                WHERE CourseId = @CourseId);";
+
+        var command = new CommandDefinition(
+            sql,
+            new { CourseId = courseId },
+            cancellationToken: cancellationToken);
+
+        return await connection.ExecuteScalarAsync<bool>(command);
     }
 
-    public Task UpdateAsync(TrainingBatch trainingBatch, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(TrainingBatch trainingBatch, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        using var connection = _dbConnectionFactory.CreateConnection();
+
+        const string sql = @"
+        UPDATE trainingbatch
+        SET courseid = @CourseId,
+            mentorid = @MentorId,
+            startdate = @StartDate,
+            enddate = @EndDate,
+            status = @Status,
+            updatedat = @UpdatedAt
+        WHERE batchid = @Id;";
+
+        var command = new CommandDefinition(sql, new
+        {
+            trainingBatch.Id,
+            CourseId = trainingBatch.CourseID,
+            MentorId = trainingBatch.MentorID,
+            trainingBatch.StartDate,
+            trainingBatch.EndDate,
+            Status = trainingBatch.Status.Name,
+            UpdatedAt = DateTime.UtcNow
+        }, cancellationToken: cancellationToken);
+
+        await connection.ExecuteAsync(command);
     }
 }

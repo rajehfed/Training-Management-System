@@ -1,4 +1,5 @@
 ﻿using TMS.Domain.Training.TrainingBatch;
+using TMS.Domain.TrainingDomain.Session;
 
 namespace TMS.Application.Shared.Interfaces;
 
@@ -13,8 +14,7 @@ public interface ITrainingBatchRepository
     Task<List<TrainingBatch>?> GetTrainingBatchesByCourseIdAsync(int courseId, CancellationToken cancellationToken = default);
     Task<List<TrainingBatch>?> GetTrainingBatchesByMentorIdAsync(int mentorId, CancellationToken cancellationToken = default);
     Task<List<TrainingBatch>?> GetTrainingBatchesByStatusAsync(TrainingBatchStatus status, CancellationToken cancellationToken = default);
-    Task AddSessionToTrainingBatchAsync(int batchId, DateTime startTime, DateTime endTime, int? roomID, CancellationToken cancellationToken = default);
-    Task RemoveSessionFromTrainingBatchAsync(int batchId, int sessionId, CancellationToken cancellationToken = default);
+    Task AddSessionToTrainingBatchAsync(Session session, CancellationToken cancellationToken = default);
     Task<bool> SessionExistsInBatchAsync(int batchId, int sessionId, CancellationToken cancellationToken = default);
     Task<bool> TrainingBatchExistsAsync(int batchId, CancellationToken cancellationToken = default);
     Task<bool> TrainingBatchExistsByCourseIdAsync(int courseId, CancellationToken cancellationToken = default);
